@@ -1,0 +1,36 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> matching OP_BRA </title>
+</head>
+<body><pre>
+    case OP_BRA:
+    //Start of non-capturing bracket(zxxu: bracket means group)
+    flags = (op >= OP_SBRA)? match_cbegroup : 0; // match_cbegroup: <b>Could-be-empty</b> (unlimited repeat) group
+    for (;;)
+      {
+      if (ecode[GET(ecode, 1)] != OP_ALT)   /* Final alternative: no more ALTs */
+        {
+        if (flags == 0)    /* Not a possibly empty group as match_cbegroup not flagged */
+          {
+          ecode += _pcre_OP_lengths[*ecode];
+          goto TAIL_RECURSE;
+          }
+
+        RMATCH(eptr, ecode + _pcre_OP_lengths[*ecode], offset_top, md, <i>ims, eptrb, flags...
+        if (rrc == MATCH_NOMATCH) md->mark = markptr;</i>
+        RRETURN(rrc);
+        }
+
+      RMATCH(eptr, ecode + _pcre_OP_lengths[*ecode], offset_top, md, ...
+      //normally md->start_match_ptr is a ptr into subject, but if it was set to ecode, i guess ecode now contains some literals
+      if (rrc != MATCH_NOMATCH<i> &&
+          (rrc != MATCH_THEN || md->start_match_ptr != ecode)</i>)
+        RRETURN(rrc);
+      ecode += GET(ecode, 1);
+      }
+
+    // if control reaches here, there is a data error!

@@ -1,0 +1,115 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> g1b2 </title>
+</head>
+<body>
+
+This branch will match empty str, so its code starts with <a href=match/OP_KET.html>OP_KET</a> capturing(OP_CBRA) g1 <i>as the capture_last</i> and proceeds accordingly:<ul>
+<li>when recursing `g1` against ""<pre>
+        {
+        // breakpoint: `number==1 && md->offset_vector[offset+1]==5`
+
+        // offset_top is 6: this recursion is called due to (.)(?1) , where \2 was already matched
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+        {
+        recursion_info *rec = md->recursive;
+        md->recursive = rec->prevrec;
+        // rec->offset_save[2] is -1
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        // rec->save_offset_top is 6
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        // continue OP_KET which will close the OP_ONCE bracket
+        break;
+        }
+
+    case OP_KET:
+      md->end_match_ptr = eptr;//""
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+</pre>
+
+<li>when recursing against "a"<pre>
+        {
+        // breakpoint: `number==1 && md->offset_vector[offset+1]==4`
+
+        // offset_top is 6: this recursion is called after g2 matched "b"
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+        {
+        md->recursive = rec->prevrec;
+        // rec->offset_save[2] is -1
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        // rec->save_offset_top is 6
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        // continue OP_KET which will close the OP_ONCE bracket
+        break;
+        }
+
+    case OP_KET:
+      md->end_match_ptr = eptr;//"a"
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+</pre>
+
+<li>when recursing against "ba" "aba" "baba"<pre>
+md->recursive = rec->prevrec;
+memcpy(md->offset_vector, rec->offset_save,
+md->end_match_ptr = "ba" "aba" "baba"
+md->end_offset_top = rec->save_offset_top;
+MRRETURN(MATCH_MATCH);
+</pre>
+
+<li style=color:green>above all, when recursing, this branch will cleanup current recursion, which includes:<ul>
+ <li>pop current recursion
+ <li>as recursion don't change matches, so also restore offset_vector and end_offset_top // note md don't have offset_top member, but having end_offset_top
+ <li>update end_match_ptr, <b>as this is empty match, so end_match_ptr don't proceed, yet <a href=g3b2.html>g3b2</a> is a good example of proceeding
+ </ul><br>
+
+<li>when not recursing<pre>
+    if (*prev == OP_CBRA || *prev == OP_SCBRA)
+      {
+        // breakpoint: `number==1 && md->offset_vector[offset+1]==0`
+
+        // offset_top is 2: nothing was matched yet;
+        if (offset >= offset_top) offset_top = offset + 2;
+        // offset_top is 4
+        }
+      }
+
+    if (*ecode == OP_KET /*|| eptr == saved_eptr*/)
+      {
+      ecode += 1 + LINK_SIZE;
+      break;
+      }
+
+
+    case OP_ALT:
+    // skiping ncb2
+    do ecode += GET(ecode,1); while (*ecode == OP_ALT);
+    break;
+
+    case OP_KET:
+    if (*ecode == OP_KET /*|| eptr == saved_eptr*/)
+      {
+      ecode += 1 + LINK_SIZE;
+      break;
+      }
+
+    //case OP_TYPEPOSSTAR:
+
+    case OP_DOLL:
+    <b>MRRETURN(MATCH_NOMATCH);</b>
+</pre>
+
+<li style=color:green>basing on above, when not recursing, this branch do nothing before returning nomatch
+
+</ul>

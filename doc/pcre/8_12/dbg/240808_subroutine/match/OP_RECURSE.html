@@ -1,0 +1,59 @@
+<head>
+    <base href = ".">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> match OP_RECURSE </title>
+</head>
+<body><pre>
+    case OP_RECURSE:
+      {
+      // the subpattern we wanna call
+      callpat = md->start_code + GET(ecode, 1);
+      // if the subpat to be called is start_code, it's group 0
+      // else callpat begins with OP_CBRA(or similar inst) where *(OP_CBRA+1+LINK_SIZE) is the pat num
+      new_recursive.group_num = (callpat == md->start_code)? 0 : GET2(callpat, 1 + LINK_SIZE);
+
+      new_recursive.prevrec = md->recursive;
+      md->recursive = &new_recursive;
+
+      ecode += 1 + LINK_SIZE;
+      new_recursive.after_call = ecode;
+
+      new_recursive.saved_max = md->offset_end;
+      if (REC_STACK_SAVE_MAX >= new_recursive.saved_max)
+        new_recursive.offset_save = stacksave;
+
+      // save the captured as we're recursing an already defined group
+      memcpy(new_recursive.offset_save, md->offset_vector, new_recursive.saved_max * sizeof(int));
+      new_recursive.save_offset_top = offset_top;
+
+      <i>flags = (*callpat >= OP_SBRA)? match_cbegroup : 0;</i>
+      do
+        {
+        RMATCH(eptr, callpat + _pcre_OP_lengths[*callpat], offset_top,
+          <i>md, ims, eptrb, flags, RM6);</i>
+        if (rrc == MATCH_MATCH <i>|| rrc == MATCH_ACCEPT</i>)
+          {
+          md->recursive = new_recursive.prevrec;
+          MRRETURN(MATCH_MATCH);
+          }
+        else if (rrc != MATCH_NOMATCH <i>&&
+                (rrc != MATCH_THEN || md->start_match_ptr != ecode)</i>)
+          {
+          DPRINTF(("Recursion gave error %d\n", rrc));
+          RRETURN(rrc);
+          }
+        // offset_vector may be ruined, reset with new_recursive
+        md->recursive = &new_recursive;
+        memcpy(md->offset_vector, new_recursive.offset_save, new_recursive.saved_max * sizeof(int));
+        callpat += GET(callpat, 1);
+        }
+      while (*callpat == OP_ALT);
+
+      DPRINTF(("Recursion didn't match\n"));
+      md->recursive = new_recursive.prevrec;
+      MRRETURN(MATCH_NOMATCH);
+      }
+</pre>

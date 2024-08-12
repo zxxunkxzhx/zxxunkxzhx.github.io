@@ -1,0 +1,125 @@
+<head>
+    <base href = "240808_subroutine/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> subroutine internals </title>
+</head>
+<body>
+Given pattern <pre>
+    ^\W*+(?:((.)\W*+(?1)\W*+\2|)|((.)\W*+(?3)\W*+\4|\W*+.\W*+))\W*+$
+</pre>
+which are capturing following groups<ol>
+<li> ((.)\W*+(?1)\W*+\2|)
+<li> (.)
+<li> ((.)\W*+(?3)\W*+\4|\W*+.\W*+)
+<li> (.)
+</ol><BR>
+and a non-capturing(<b>note ?: means non-capturing</b>) group having two branches:<ol>
+ <li>first branch ncb1 contains 1 elem as group 1
+ <li>second branch ncb2 contains 1 elem as group 3
+ </ol>
+and compiled with no option or the CASELESS option.
+ 
+<br>Following I am revealing subroutine internals through pcre_exec(subject = "ababa", offsetcount = 15):<i><pre>
+USPTR start_match = (USPTR)subject + start_offset;
+//USPTR req_byte_ptr = start_match - 1;
+const real_pcre *external_re = (const real_pcre *)argument_re;
+const real_pcre *re = external_re;
+
+// RE Grouping: This information is for finding all the numbers associated with a given name
+md->name_table = (uschar *)re + re->name_table_offset;
+md->name_count = re->name_count;
+md->name_entry_size = re->name_entry_size;
+
+md->match_limit = MATCH_LIMIT;
+md->match_limit_recursion = MATCH_LIMIT_RECURSION;
+
+/* Check that the first field in the block is the magic number. If it is not,
+test for a regex that was compiled on a host of opposite endianness. If this is
+the case, flipped values are put in internal_re. */
+// zxxu: internal_re is defined and may be set by _pcre_try_flipped, but seems not further used
+real_pcre internal_re;
+if (re->magic_number != MAGIC_NUMBER)
+  {
+  // zxxu: can define internal_re here?
+  re = _pcre_try_flipped(re, &internal_re, study, &internal_study);
+  }
+// on compiling, according to the option set and the pattern, pcre compiler decide it's safe to add PCRE_ANCHORED into the compiled options
+anchored = ((re->options | options) & PCRE_ANCHORED) != 0;
+// told that subject starts after \n (for multiline)
+startline = (re->flags & PCRE_STARTLINE) != 0;
+// Force matching to be before newline?
+firstline = (re->options & PCRE_FIRSTLINE) != 0;
+
+md->start_code = (const uschar *)external_re + re->name_table_offset + re->name_count * re->name_entry_size;
+
+md->start_subject = (USPTR)subject;
+md->start_offset = start_offset;
+md->end_subject = md->start_subject + length;
+
+md->endonly = (re->options & PCRE_DOLLAR_ENDONLY) != 0;
+
+// subject string is not the beginning of a line?
+md->notbol = (options & PCRE_NOTBOL) != 0;
+// zxxu: this shall relate to last newline (which is imm before the end of subject) matching $
+md->noteol = (options & PCRE_NOTEOL) != 0;
+md->notempty = (options & PCRE_NOTEMPTY) != 0;
+// An empty string at the start of the subject is not a valid match
+md->notempty_atstart = (options & PCRE_NOTEMPTY_ATSTART) != 0;
+
+// i m s
+ims = re->options & (PCRE_CASELESS|PCRE_MULTILINE|PCRE_DOTALL);
+
+ocount = offsetcount - (offsetcount % 3);
+md->offset_vector = offsets;
+
+// note ocount is times of 3
+md->offset_end = ocount;
+// [0..offset_max) will contain groups matches [(g0.beg, g0.end), (g1.beg, ...]
+md->offset_max = (2*ocount)/3;
+// (offset_end..offset_max] will be used to save gi's candidate matching offsets: offset_end-1 for group 1, offset_end-2 for group 2...
+// that is, once inst such as OP_CBRA is executed, [offset_end-number] is used to save matching offset of group who's group id is `number`
+
+// top_bracket possible means number of brackets to capture(not including group 0)
+resetcount = 2 /*for group 0*/ + re->top_bracket * 2;
+<b style=color:red>if (resetcount > offsetcount) resetcount = ocount;</b>
+
+if (md->offset_vector != NULL)
+  {
+  // group 0 don't need to be managed here
+  [md->offset_vector + ocount - resetcount/2 + 1 .. md->offset_vector + ocount) = -1;
+  }
+
+for(;;)
+  {
+  // Reset maximum number of extractions
+  if (md->offset_vector != NULL)
+    {
+    register int *iptr = md->offset_vector;
+    register int *iend = iptr + resetcount;
+    [iptr..iend) = -1;
+    }
+
+  md->start_match_ptr = start_match;
+  md->start_used_ptr = start_match;
+  rc = <a href=match.html>match</a>(offset_top = 2, rdepth = 0);
+  switch(rc)
+    {
+    case MATCH_NOMATCH:
+    new_start_match = start_match + 1;
+    break;
+    }
+  rc = MATCH_NOMATCH;
+  start_match = new_start_match;
+  if (anchored /*|| start_match > end_subject*/) break;
+  }
+
+  {
+  DPRINTF((">>>> returning PCRE_ERROR_NOMATCH\n"));
+  rc = PCRE_ERROR_NOMATCH;
+  }
+
+return rc;
+</pre></i>

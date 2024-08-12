@@ -1,0 +1,145 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> matching </title>
+</head>
+<body>
+<ol><li>
+<pre>
+int match(
+    USPTR eptr /* expr_ptr */,
+    const uschar *ecode /* expr_code */,
+    USPTR mstart /* match_start, can be modified, such as by encountering \K */,
+    const uschar *markptr /* pointer to the most recent MARK name */,
+    int offset_top,
+    match_data *md,
+    unsigned long int ims,
+    eptrblock *eptrb,
+    int flags,
+    unsigned int rdepth /* recursion_depth */)
+{
+
+// in order to reduce the amount of stack, define a label to loop back
+TAIL_RECURSE:
+// do we really need match_call_count? yes, we may avoid dead loops!
+if (md->match_call_count++ >= md->match_limit) RRETURN(PCRE_ERROR_MATCHLIMIT);
+// zxxu: can move this line to before TAIL_RECURSE
+if (rdepth >= md->match_limit_recursion) RRETURN(PCRE_ERROR_RECURSIONLIMIT);
+
+for (;;){
+  minimize = possessive = FALSE;
+  op = *ecode;
+
+  switch(op)
+    {
+    <a href=match/OP_BRA.html>case OP_BRA:</a>
+    //zxxu: group 0 always start with opr OP_BRA? I think if the pattern is `()` braced, it (likely) starts with OP_SBRA, else starts with OP_BRA */
+
+    goto TAIL_RECURSE;
+</pre>
+
+<li>match ^
+<pre>
+case OP_CIRC /* circumflex, ^ */:
+    // indicated subj not being begin of line?
+    // expr ptr is at beg of subj?
+    if (md->notbol && eptr == md->start_subject) MRRETURN(MATCH_NOMATCH);
+    if ((ims & PCRE_MULTILINE) != 0)
+      {
+      if (eptr != md->start_subject && eptr == md->end_subject) MRRETURN(MATCH_NOMATCH);
+      // checks for a newline immediately preceding the given position
+      if (eptr != md->start_subject && !WAS_NEWLINE(eptr)) MRRETURN(MATCH_NOMATCH);
+      ecode++;
+      break;
+      }
+case OP_SOD://Start of subject|data assertion
+    if (eptr != md->start_subject) MRRETURN(MATCH_NOMATCH);
+    ecode++;
+    break;
+</pre>
+
+<li>match \W*+
+<pre>
+case OP_TYPEPOSSTAR: //start possessified REPEATTYPE
+    possessive = TRUE;
+    min = 0;
+    max = INT_MAX;
+    ecode++;
+    //goto REPEATTYPE;
+
+    switch(ctype = *ecode++)
+    {
+    case OP_NOT_WORDCHAR:
+    //possessified skip all \W chars
+    break;
+    }
+    continue;
+</pre>
+
+<li>get to the non-capturing group:<pre>
+    case OP_BRA:
+    for (;;)
+      {
+      ...
+
+      <a href=ncb1.html>ncb1</a>(eptr, ecode + _pcre_OP_lengths[*ecode], offset_top,);
+      if (rrc != MATCH_NOMATCH)
+        RRETURN(rrc);
+      ecode += GET(ecode, 1);
+      }
+<pre>
+
+<li>TAIL_RECURSE ncb2(we're not calling into, saving a stack frame):<pre>
+      if (ecode[GET(ecode, 1)] != OP_ALT)
+        {
+        if (flags == 0)
+          {
+          ecode += _pcre_OP_lengths[*ecode];
+          goto TAIL_RECURSE;
+          }
+</pre>
+
+<li><pre>
+    <a href=match/OP_CBRA.html>case OP_CBRA:</a>
+    if (md->offset_max > offset)
+      {
+      save_offset1 = md->offset_vector[offset];
+      save_offset2 = md->offset_vector[offset+1];
+      save_offset3 = md->offset_vector[md->offset_end - number];
+      save_capture_last = md->capture_last; // -1
+      md->offset_vector[md->offset_end - number] = (int)(eptr - md->start_subject);
+
+      do
+        {
+        <a href=g13b1.html>g13b1</a>(eptr = "ababa", ecode + _pcre_OP_lengths[*ecode],);
+        if (rrc != MATCH_NOMATCH)
+          RRETURN(rrc);
+        md->capture_last = save_capture_last;
+        ecode += GET(ecode, 1);
+        }
+      while (*ecode == OP_ALT);
+</pre>
+
+<li><pre>
+      do
+        {
+        g3b2(eptr = "ababa", ecode + _pcre_OP_lengths[*ecode],);
+        // if you understand all above contents, you know rrc is MATCH_NOMATCH here
+        if (rrc != MATCH_NOMATCH)
+          RRETURN(rrc);
+        md->capture_last = save_capture_last;
+        ecode += GET(ecode, 1);
+        }
+      while (*ecode == OP_ALT);
+
+      md->offset_vector[offset] = save_offset1;
+      md->offset_vector[offset+1] = save_offset2;
+      md->offset_vector[md->offset_end - number] = save_offset3;
+
+      if (rrc != MATCH_THEN) md->mark = markptr;
+      RRETURN(MATCH_NOMATCH);
+      }
+</pre>
