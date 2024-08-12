@@ -1,0 +1,355 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> b1 of g1 or g3 </title>
+</head>
+<body>
+<pre>
+<ol>
+<li>//for g1, group 2; for g3, group 4
+<li>matching group 2 or 4 against non-empty eptr:<pre>
+    <a href=match/OP_CBRA.html>case OP_CBRA:</a>
+      md->offset_vector[md->offset_end - number] = (int)(eptr - md->start_subject);
+      do
+        {
+        RMATCH(eptr,);
+</pre>
+
+<li>matching group 2|4's unique branch:<pre>
+    case OP_ANY:
+    if (IS_NEWLINE(eptr)) MRRETURN(MATCH_NOMATCH);
+    /* note IS_NEWLINE return FALSE if eptr reach end of subj */
+
+    case OP_ALLANY:
+    if (eptr++ >= md->end_subject)
+      {
+      // <b style=color:red>note `.` does not match if reached end</b>
+      MRRETURN(MATCH_NOMATCH);
+      }
+    ecode++;
+    break;
+
+    <a href=match/OP_KET.html>case OP_KET:</a>
+    prev = ecode - GET(ecode, 1);
+
+    if (*prev == OP_CBRA)
+      {
+      number = GET2(prev, 1+LINK_SIZE);
+      offset = number * 2;
+      md->capture_last = number;
+      if (offset >= md->offset_max) md->offset_overflow = TRUE; else
+        {
+        md->offset_vector[offset] = md->offset_vector[md->offset_end - number];
+        md->offset_vector[offset+1] = (int)(eptr - md->start_subject);
+        // for g1, offset_top will be 6; else will be 10
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+      }
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1 + LINK_SIZE;
+      // safe to match through
+      break;
+      }
+
+    case OP_TYPEPOSSTAR:
+        //possessified skip all \W chars
+        break;
+
+    // according to pcre doc, a subpattern call is always treated as (zxxu:forming) an "atomic group"|"Once bracket";
+    // the "Once" bracket here contains  only one branch, which in turn contains a subpattern call
+    <a href=match/OP_ONCE.html>case OP_ONCE:</a>
+      {
+      rrc = match OP_ONCE bracket's unique branch
+</pre>
+
+<li>OP_ONCE bracket's unique branch recurse group 1's branches(zxxu: the recursed group is normally not matched but in matching state):<pre>
+    <a href=match/OP_RECURSE.html>case OP_RECURSE:</a>
+      {
+      callpat = md->start_code + GET(ecode, 1);
+      new_recursive.group_num = (callpat == md->start_code)? 0 : GET2(callpat, 1 + LINK_SIZE);
+
+      new_recursive.prevrec = md->recursive;
+      md->recursive = &new_recursive;
+
+      ecode += 1 + LINK_SIZE;
+      new_recursive.after_call = ecode;
+
+      new_recursive.saved_max = md->offset_end;
+      new_recursive.offset_save = stacksave;
+
+      memcpy(new_recursive.offset_save, md->offset_vector, new_recursive.saved_max * sizeof(int));
+      new_recursive.save_offset_top = offset_top;
+
+      do
+        {
+        first call g13b1, then <a href=g1b2.html>g1b2</a> or <a href=g3b2.html>g3b2</a> if g13b1 not matched(eptr, callpat + _pcre_OP_lengths[*callpat], offset_top,);
+
+        if (rrc == MATCH_MATCH || rrc == MATCH_ACCEPT)
+          {
+          md->recursive = new_recursive.prevrec;
+          MRRETURN(MATCH_MATCH);
+          }
+        else if (rrc != MATCH_NOMATCH &&
+                (rrc != MATCH_THEN || md->start_match_ptr != ecode))
+          {
+          DPRINTF(("Recursion gave error %d\n", rrc));
+          RRETURN(rrc);
+          }
+
+        md->recursive = &new_recursive;
+        memcpy(md->offset_vector, new_recursive.offset_save, new_recursive.saved_max * sizeof(int));
+        callpat += GET(callpat, 1);
+        }
+      while (*callpat == OP_ALT);
+</pre>
+
+<li>assuming <a href=match/OP_ONCE.html>case OP_ONCE</a> is against eptr="", g13b1 will fail on case OP_ALLANY, then:<ul>
+ <li><a href=g1b2.html>g1b2</a> matched:<pre>
+      if (rrc == MATCH_MATCH)
+        {
+        break;
+        }
+
+    //*ecode is OP_ONCE, and the OP_ONCE bracket has only 1 branch, so `ecode + GET(ecode, 1)` is OP_KET
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = 6;
+    eptr = "";
+
+    if (*ecode == OP_KET/* || eptr == saved_eptr*/)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:// will fail as \2 does not match ""
+    MRRETURN(MATCH_NOMATCH);
+ </pre>
+ <li>g3b2 failed
+ </ul>
+
+<li>assuming <a href=match/OP_ONCE.html>case OP_ONCE</a> is against eptr="a", as is explained above that g13b1 will fail, then:<ul>
+ <li>g1b2 matched:<pre>
+      if (rrc == MATCH_MATCH)
+        {
+        break;
+        }
+
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = 6;
+    eptr = "a";
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:// will fail as `b` does not match "a"
+    MRRETURN(MATCH_NOMATCH);
+ </pre>
+ <li>g3b2 matched:<pre>
+      if (rrc == MATCH_MATCH)
+        {
+        break;
+        }
+
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = 10;
+    eptr = ""
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:// will fail as "" does not match "a"
+    MRRETURN(MATCH_NOMATCH);
+    </pre>
+ </ul>
+
+<li>assuming <a href=match/OP_ONCE.html>case OP_ONCE</a> is against eptr="ba", as is explained above that g13b1 will fail, then:<ul>
+    <li>g1b2 succ<pre>
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = ;
+    eptr = ;
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:
+    MRRETURN(MATCH_NOMATCH);
+    </pre>
+    <li>g3b2 succ<pre>
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = ;
+    eptr = "a";
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:
+        if (!match_ref(offset, eptr, length, md, ims))
+          {
+          MRRETURN(MATCH_NOMATCH);
+          }
+        eptr += length;
+        continue;
+
+    case OP_ALT:
+    do ecode += GET(ecode,1); while (*ecode == OP_ALT);
+    break;
+
+    <a href=match/OP_KET.html>case OP_KET:</a>
+    if (*prev == OP_CBRA <i>|| *prev == OP_SCBRA</i>)
+      {
+      number = GET2(prev, 1+LINK_SIZE);
+      offset = number * 2;//3
+
+      md->capture_last = number;
+      if (offset >= md->offset_max) md->offset_overflow = TRUE; else
+        {
+        md->offset_vector[offset] = md->offset_vector[md->offset_end - number];
+        /*
+        the whole subject captured:
+        the upper level recursion matched g4 with char 'a', in this level the second branch matched char 'b' and return then upper level checks 'a' matching \4
+        */
+        md->offset_vector[offset+1] = (int)(eptr - md->start_subject);
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+
+      if (md->recursive != NULL && md->recursive->group_num == number)
+        {
+        recursion_info *rec = md->recursive;
+        DPRINTF(("Recursion (%d) succeeded - continuing\n", number));
+        md->recursive = rec->prevrec;
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        break;
+        }
+      }
+
+    case OP_KET:
+    prev = ecode - GET(ecode, 1);
+
+    if (*prev == OP_ONCE)
+      {// close OP_ONCE's unique branch
+      md->end_match_ptr = eptr;
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+      }
+
+    </pre>
+    </ul>
+<li>assuming <a href=match/OP_ONCE.html>case OP_ONCE</a> is against eptr="aba"<ul>
+  <li>g1b1 failed, g1b2 succ<pre>
+    offset_top = ;
+    eptr = ;
+
+    ...
+
+    case OP_REF:
+    MRRETURN(MATCH_NOMATCH);
+  </pre>
+  <li>g3b1 succ<pre>
+    offset_top = md->end_offset_top;
+    eptr = md->end_match_ptr;
+
+    //possessified skip all \W chars
+
+    case OP_REF:
+    // \4 does not match ""
+    MRRETURN(MATCH_NOMATCH);
+  </pre></ul>
+
+<li>assuming case OP_ONCE is against eptr="baba", as is explained above that g13b1 failed, then:<ul>
+  <li>g1b2 matched
+  <pre>
+  /*
+  we matched g2 just now, so offset_top = 6;
+  eptr is pointed to the char after the empty branch matched
+  \2 does not match
+  */
+  </pre>
+  <li>g3b2 succ<pre>
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+    offset_top = ;
+    eptr = "aba";
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+
+    //possessified skip all \W chars
+
+    case OP_REF:
+        if (!match_ref(offset, eptr, length, md, ims))
+          {
+          MRRETURN(MATCH_NOMATCH);
+          }
+        eptr += length;
+        continue;
+
+    case OP_ALT:
+    do ecode += GET(ecode,1); while (*ecode == OP_ALT);
+    break;
+
+    case OP_KET:
+    if (*prev == OP_CBRA <i>|| *prev == OP_SCBRA</i>)
+      {
+      number = GET2(prev, 1+LINK_SIZE);
+      offset = number * 2;//3
+
+      md->capture_last = number;
+      if (offset >= md->offset_max) md->offset_overflow = TRUE; else
+        {
+        //"aba"
+        md->offset_vector[offset] = md->offset_vector[md->offset_end - number];
+        md->offset_vector[offset+1] = (int)(eptr - md->start_subject);
+
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+      }
+
+    if (*ecode == OP_KET)
+      {
+      ecode += 1 + LINK_SIZE;
+      break;
+      }
+
+    case OP_KET: // terminating the non-capturing group
+    prev = ecode - GET(ecode, 1);
+    if (*ecode == OP_KET || eptr == saved_eptr)
+      {
+      ecode += 1 + LINK_SIZE;
+      break;
+      }
+
+    // \W*+$ no match
+    </pre>

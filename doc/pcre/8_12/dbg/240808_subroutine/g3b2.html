@@ -1,0 +1,93 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> g3b2 </title>
+</head>
+<body>
+
+This branch(\W*+.\W*+) runs in following cases:<ul>
+<li>when recursing `g3` against ""<pre>
+// returns to the upper recursion with MATCH_NOMATCH (when matching `.` failed)
+</pre>
+
+<li>when recursing against "a"<pre>
+    // match \W*+.\W*+ then )
+    case OP_KET:
+        {
+        // breakpoint: `number==3 && md->offset_vector[offset+1]==5`
+
+        // offset_top is 10: this recursion is called after g4 matched "b"
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+        {
+        md->recursive = rec->prevrec;
+        // rec->offset_save[6] is -1
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        // rec->save_offset_top is 10
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        // continue OP_KET which will close the OP_ONCE bracket
+        break;
+        }
+
+    case OP_KET:
+      md->end_match_ptr = eptr;//""
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+</pre>
+
+<li>when recursing against "ba"<pre>
+    case OP_KET:
+        {
+        // breakpoint: `number==3 && md->offset_vector[offset+1]==4`
+
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+        {
+        md->recursive = rec->prevrec;
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        break;
+        }
+
+    case OP_KET:
+      md->end_match_ptr = eptr;//"a"
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+</pre>
+
+<li>"aba" not reached
+
+<li>when recursing against "baba"<pre>
+    case OP_KET:
+        {
+        // breakpoint: `number==3 && md->offset_vector[offset+1]==2`
+
+        // offset_top is 10: this recursion is called after g4 matched "a"
+        if (offset >= offset_top) offset_top = offset + 2;
+        }
+
+        {
+        md->recursive = rec->prevrec;
+        // rec->offset_save[6] is -1
+        memcpy(md->offset_vector, rec->offset_save, rec->saved_max * sizeof(int));
+        // rec->save_offset_top is 10
+        offset_top = rec->save_offset_top;
+        ecode = rec->after_call;
+        // continue OP_KET which will close the OP_ONCE bracket
+        break;
+        }
+
+    case OP_KET:
+      md->end_match_ptr = eptr;//"aba"
+      md->end_offset_top = offset_top;
+      MRRETURN(MATCH_MATCH);
+</pre>
+
+</ul>

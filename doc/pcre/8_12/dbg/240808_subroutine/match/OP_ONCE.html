@@ -1,0 +1,42 @@
+<head>
+    <base href = ".">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> match OP_ONCE </title>
+</head>
+<body><pre>
+    case OP_ONCE:<i>
+    prev = ecode;
+    saved_eptr = eptr;</i>
+
+    do
+      {
+      RMATCH(eptr, ecode + 1 + LINK_SIZE, offset_top, md<i>, ims, eptrb, 0, RM7);</i>
+      if (rrc == MATCH_MATCH)  /* Note: _not_ MATCH_ACCEPT */
+        {
+        <i>mstart = md->start_match_ptr;</i>
+        break;
+        }
+      if (rrc != MATCH_NOMATCH <i>&&
+          (rrc != MATCH_THEN || md->start_match_ptr != ecode)</i>)
+        RRETURN(rrc);
+      ecode += GET(ecode,1);
+      }
+    while (*ecode == OP_ALT);
+
+    if (*ecode != OP_ONCE && *ecode != OP_ALT) RRETURN(MATCH_NOMATCH);
+
+    do ecode += GET(ecode, 1); while (*ecode == OP_ALT);
+
+    offset_top = md->end_offset_top;
+    eptr = md->end_match_ptr;
+
+    if (*ecode == OP_KET <i>|| eptr == saved_eptr</i>)
+      {
+      ecode += 1+LINK_SIZE;
+      break;
+      }
+    <i>
+</pre>

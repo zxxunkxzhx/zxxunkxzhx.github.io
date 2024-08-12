@@ -1,0 +1,51 @@
+<head>
+    <base href = ".">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> match OP_CBRA </title>
+</head>
+<body><pre>
+    case OP_CBRA:
+    number = GET2(ecode, 1+LINK_SIZE);
+    offset = number * 2;
+
+    if (offset &lt; md->offset_max)
+      {
+      save_offset1 = md->offset_vector[offset];
+      save_offset2 = md->offset_vector[offset+1];
+      save_offset3 = md->offset_vector[md->offset_end - number];
+      save_capture_last = md->capture_last;
+      md->offset_vector[md->offset_end - number] = (int)(eptr - md->start_subject);
+
+      <i>flags = (op == OP_SCBRA)? match_cbegroup : 0;</i>
+      do
+        {
+        RMATCH(eptr, ecode + _pcre_OP_lengths[*ecode], offset_top, md...
+        if (rrc != MATCH_NOMATCH <i>&&
+            (rrc != MATCH_THEN || md->start_match_ptr != ecode)</i>)
+          RRETURN(rrc);
+        <b>md->capture_last = save_capture_last;</b>
+        ecode += GET(ecode, 1);
+        }
+      while (*ecode == OP_ALT);
+
+      DPRINTF(("bracket %d failed\n", number));
+
+      md->offset_vector[offset] = save_offset1;
+      md->offset_vector[offset+1] = save_offset2;
+      md->offset_vector[md->offset_end - number] = save_offset3;
+
+      <i>if (rrc != MATCH_THEN) md->mark = markptr;</i>
+      RRETURN(MATCH_NOMATCH);
+      }
+
+    <b style=color:red>
+    /* FALL THROUGH ... Insufficient room for saving captured contents. Treat
+    as a non-capturing bracket. */
+    DPRINTF(("insufficient capture room: treat as non-capturing\n"));
+    </b>
+    case OP_BRA:
+    case OP_SBRA:
+</pre>
