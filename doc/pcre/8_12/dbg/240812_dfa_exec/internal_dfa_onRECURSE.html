@@ -1,0 +1,22 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> internal_dfa_onRECURSE </title>
+</head>
+<body>
+ 
+<ol start=0>
+<li>setup by adding state 0 for ncb1, state 1 for ncb2, then <a href=ide_onRECURSE_loop00.html>do init match</a>:<ol>
+ <li>S00 g2b1   --> S02
+ <li>S01 KET    --> offsets[0..1] stores match of group 1
+ <li>S02 OP_ANY --> N00 // group 2 matched 'm'
+ </ol>
+
+<li><a href=ide_onRECURSE_loop01.html>ide_onRECURSE_loop01</a>:<pre>
+ S00    OP_KET  --> S01 // close group 2 and ready to continue against "an..."
+ S01    \W*+    --> S02 // group 1 matched \W*+ and ready to continue
+ S02    OP_ONCE --> internal_dfa_exec for (?1)
+ </pre>
