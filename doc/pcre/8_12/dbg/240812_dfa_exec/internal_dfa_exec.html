@@ -1,0 +1,69 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> internal_dfa_exec </title>
+</head>
+<body>
+ 
+<ol start=0>
+<li><a href=ide_toplvl_loop00.html> ide_toplvl_loop00 </a>:<ol>
+ <li>//the pattern(group 0) has only 1 branch
+ <li>add every branch as new states which have not processed any subject chars yet: got state 0
+ <li>now we will process the first char in subject ptr(subject ptr="a..."), if the char can be read, a new state will be produced
+ <li>it's easy to notice that g1b1, g3b1 and g3b2 can eat this char, so 3 new states will be added, following is the state trans table:<pre>
+ SrcState   Symbol      TgtState
+ =========================
+ S0         ^       --> S1
+
+ S1         \W*+    --> S2
+
+ S2         ncb1    --> S3
+
+ S2         ncb2    --> S4
+
+ S3         g1b1    --> S5
+
+ S3         g1b2    --> S6
+
+ S4         g3b1    --> S7
+
+ S4         g3b2    --> S8
+
+ S5         g2b1    --> S9
+
+ S6         KET     --> S10
+
+ S7         g4b1    --> S11
+
+ S8         \W*+    --> S12
+
+ S9         .       --> N0
+
+ S10        ALT     --> S13
+
+ S11        .       --> N1
+
+ S12        .       --> N2
+
+ S13        KET     --> S14
+
+ S14        \W*+    --> S15
+
+ S15        $       -->
+ <pre>
+ <li><a href=ide_toplvl_loop00.jpg> state trans tree </a>
+ </ol>
+ 
+<li>subject ptr="..." after "a", break by checking <a href=ide_toplvl_loop01.html> (ptr - current_subject) </a>
+ <pre>
+ S00        KET     --> S03 // close g2
+ S01        KET     --> S04 // KET g4
+ S02        \W*+    --> N00 // g3b2 matching \W*+ after `\W*+.`
+ S03        \W*+    --> N01 // \W*+ after g2
+ S04        \W*+    --> N02 // \W*+ after g4
+ <pre>
+
+<li><a href=ide_toplvl_loop02.html> subject ptr="man..." after "a " </a>

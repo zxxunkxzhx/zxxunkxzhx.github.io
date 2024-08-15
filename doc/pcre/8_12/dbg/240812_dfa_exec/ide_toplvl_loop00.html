@@ -1,0 +1,225 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> internal_dfa_exec: loop00 </title>
+</head>
+<body>
+ 
+<ol start=0>
+<li><pre>
+const uschar *start_subject = md->start_subject;
+const uschar *end_subject = md->end_subject;
+const uschar *start_code = md->start_code;
+
+rlevel++;
+offsetcount &= (-2);
+
+wscount -= 2;
+wscount = (wscount - (wscount % (INTS_PER_STATEBLOCK * 2))) / (2 * INTS_PER_STATEBLOCK); // = 127
+
+active_states = (stateblock *)(workspace + 2);
+next_new_state = new_states = active_states + wscount;
+
+  {
+  end_code = this_start_code;
+    {
+    // ADD_NEW group 0's unique branch
+    int length = 1 + LINK_SIZE +
+      ((*this_start_code == OP_CBRA || *this_start_code == OP_SCBRA)? 2:0);
+    do
+      {
+      <a href=ADD_NEW.html>ADD_NEW</a>((int)(end_code - start_code + length), 0);
+      end_code += GET(end_code, 1);
+      length = 1 + LINK_SIZE;
+      }
+    while (*end_code == OP_ALT);
+    }
+  }
+
+workspace[0] = 0;
+
+for (;;)
+  {
+  temp_states = active_states;
+  active_states = new_states;
+  new_states = temp_states;
+  active_count = new_count;
+  new_count = 0;
+
+  workspace[0] ^= 1;              /* Remember for the restarting feature */
+  workspace[1] = active_count;
+
+  next_active_state = active_states + active_count;
+  next_new_state = new_states;
+
+  if (end_subject > ptr)
+    {
+    clen = 1;        /* Number of bytes in the character */
+    c = *ptr;
+    }
+  else
+    {
+    clen = 0;        /* This indicates the end of the subject */
+    c = NOTACHAR;    /* This value should never actually be used */
+    }
+
+  for (i [ 0 .. active_count))
+    {
+    stateblock *current_state = active_states + i;
+    int state_offset = current_state->offset;
+
+    code = start_code + state_offset;
+    codevalue = *code;
+
+    if (coptable[codevalue] > 0)
+      {
+      dlen = 1;
+      d = code[coptable[codevalue]];
+      if (codevalue >= OP_TYPESTAR)
+        {
+        switch(d)
+          {
+          default: break;
+          }
+        }
+      }
+    else
+      {
+      dlen = 0;         /* Not strictly necessary, but compilers moan */
+      d = NOTACHAR;     /* if these variables are not set. */
+      }
+
+    switch (codevalue)
+      {
+      case OP_CIRC:
+      if (..)
+        { <a href=ADD_ACTIVE.html>ADD_ACTIVE</a>(state_offset + 1, 0); }
+        //active_states[1] for .. following ^
+      break;
+      }
+
+    NEXT_ACTIVE_STATE: continue to i=1;
+
+    }
+</pre>
+
+<li><pre>
+      case OP_TYPEPOSSTAR:
+      // possessify all \W chars
+      ADD_ACTIVE(state_offset + 2, 0);
+      //active_states[2] for the non capturing group
+      continue to i=2;
+</pre>
+
+<li><pre>
+      case OP_BRA:
+      do
+        {
+        ADD_ACTIVE((int)(code - start_code + 1 + LINK_SIZE), 0);
+        code += GET(code, 1);
+        }
+      while (*code == OP_ALT);
+      // active_states[3] for ncb1
+      // active_states[4] for ncb2
+      continue to i=3;
+</pre>
+
+<li><pre>
+      case OP_CBRA:
+      ADD_ACTIVE((int)(code - start_code + 3 + LINK_SIZE),  0);
+      code += GET(code, 1);
+      while (*code == OP_ALT)
+        {
+        ADD_ACTIVE((int)(code - start_code + 1 + LINK_SIZE),  0);
+        code += GET(code, 1);
+        }
+      // active_states[5] for g1b1
+      // active_states[6] for g1b2
+      continue to i=4;
+</pre>
+
+<li><pre>
+      case OP_CBRA:
+      // active_states[7] for g3b1
+      // active_states[8] for g3b2
+      continue to i=5;
+</pre>
+
+<li><pre>
+      case OP_CBRA:
+      // active_states[9] for g2b1
+      continue to i=6;
+</pre>
+
+<li><pre>
+      case OP_KET:
+      if (code != end_code)
+        {
+        ADD_ACTIVE(state_offset + 1 + LINK_SIZE, 0);
+        // active_states[10] for OP_ALT
+        }
+      continue to i=7;
+</pre>
+
+<li><pre>
+      case OP_CBRA:
+      // active_states[11] for g4b1
+      continue to i=8;
+</pre>
+
+<li><pre>
+      case OP_TYPEPOSSTAR:
+      ADD_ACTIVE(state_offset + 2, 0);
+      // active_states[12] for g3b2: . after \W*+
+      continue to i=9;
+</pre>
+
+<li><pre>
+      case OP_ANY:
+      if (clen > 0 && !IS_NEWLINE(ptr))// ptr = "a man..
+        { <b>ADD_NEW</b>(state_offset + 1, 0); }
+      continue to i=10;
+</pre>
+
+<li><pre>
+      case OP_ALT:
+      // skips ncb2 by looping through
+
+      ADD_ACTIVE((int)(code - start_code), 0);
+      // active_states[13] for terminating nc
+</pre>
+
+<li><pre>
+      case OP_ANY:
+      ADD_NEW(state_offset + 1, 0);
+</pre>
+
+<li><pre>
+      case OP_ANY:
+      ADD_NEW(state_offset + 1, 0);
+</pre>
+
+<li><pre>
+      case OP_KET:
+      if (code != end_code)
+        {
+        ADD_ACTIVE(state_offset + 1 + LINK_SIZE, 0);
+        // active_states[14] for \W*+ after nc
+        }
+      continue to i=14;
+</pre>
+
+<li><pre>
+      case OP_TYPEPOSSTAR:
+      //active_states[15] for $
+</pre>
+
+<li><pre>
+      case OP_DOLL:
+      //not at end, do nothing
+</pre>
+
+<li>ptr += clen; // +1

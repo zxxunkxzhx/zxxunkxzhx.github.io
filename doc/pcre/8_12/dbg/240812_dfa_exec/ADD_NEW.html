@@ -1,0 +1,19 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> ADD_NEW </title>
+</head>
+<body><pre>
+#define ADD_NEW(x,y) \
+  if (wscount > new_count++) \
+    { \
+    next_new_state->offset = (x); \
+    next_new_state->count  = (y); \
+    next_new_state->ims    = ims; \
+    next_new_state++; \
+    } \
+  else return PCRE_ERROR_DFA_WSSIZE
+</pre></i>

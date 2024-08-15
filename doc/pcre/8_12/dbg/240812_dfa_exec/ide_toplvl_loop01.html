@@ -1,0 +1,58 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> internal_dfa_exec: loop01 </title>
+</head>
+<body>
+
+<ol start=0>
+<li><pre>
+      case OP_KET://g2b1
+      ADD_ACTIVE(3)
+  </pre>
+
+<li><pre>
+      case OP_KET://g4b1
+      ADD_ACTIVE(4)
+  </pre>
+
+<li><pre>
+      case OP_TYPESTAR:
+      <del>ADD_ACTIVE</del>;
+      if (clen > 0)
+        {
+        if (..)
+          {
+          if (codevalue == OP_TYPEPOSSTAR)
+            {
+            active_count--;
+            <del>next_active_state--</del>;
+            }
+          <b>ADD_NEW(state_offset, 0);</b>// \W*+ after \W*+.
+          }
+        }
+  </pre>
+
+<li><pre>
+      case OP_TYPEPOSSTAR:
+      ADD_ACTIVE(state_offset + 2, 0);
+      if (clen > 0)
+        {
+        if (..)
+          {
+          if (codevalue == OP_TYPEPOSSTAR)
+            {
+            active_count--;
+            next_active_state--;
+            }
+          ADD_NEW(state_offset, 0); // \W*+ after group 2
+          }
+        }
+  </pre>
+
+<li>case OP_TYPEPOSSTAR:ADD_NEW(2)// \W*+ after g4
+<li>ptr += clen;
+</ol>
