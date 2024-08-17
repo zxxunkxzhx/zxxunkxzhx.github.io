@@ -1,0 +1,46 @@
+<head>
+    <base href = "8_45/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> build and test latest PCRE1  </title>
+</head>
+<body>
+<h1>Find source code</h1><pre>
+according to https://pcre.org , "...the older, unmaintained PCRE library from an unofficial mirror at https://sourceforge.net/projects/pcre/files/pcre/8.45/ "
+
+yet I have checked final commit(5c78f7d) of https://github.com/luvit/pcre  exactly match the latest PCRE1
+
+please note the Luvit Community normally don't fix PCREs, it's just another place for you to download older PCRE
+</pre></i>
+
+<h1>Build your test</h1>
+
+Take <a href=240817_test_latestPCRE1.html>240817_test_latestPCRE1</a> as an example.<br><br>
+
+<li>hack CMakeLists.txt :<pre>
+-  SET(PCRETEST_SOURCES pcretest.c)
++  SET(PCRETEST_SOURCES 240817_test_latestPCRE1.c)
+   IF(PCRE_BUILD_PCRE8)
+-    LIST(APPEND PCRETEST_SOURCES pcre_printint.c)
++    LIST(APPEND PCRETEST_SOURCES getopt.c)
+   ENDIF(PCRE_BUILD_PCRE8)
+   IF(PCRE_BUILD_PCRE16)
+     LIST(APPEND PCRETEST_SOURCES pcre16_printint.c)
+@@ -798,6 +798,9 @@ IF(PCRE_BUILD_TESTS)
+     LIST(APPEND PCRETEST_LIBS pcre32)
+   ENDIF(PCRE_BUILD_PCRE32)
+   TARGET_LINK_LIBRARIES(pcretest ${PCRETEST_LIBS})
++  IF(NOT BUILD_SHARED_LIBS)
++    SET_TARGET_PROPERTIES(pcretest PROPERTIES COMPILE_FLAGS "-DPCRE_STATIC")
++  ENDIF()
+</pre>
+
+<li>cmake create build files<pre>
+cmake -A Win32 -B C:\Users\xzhxj\build\240817_test_latestPCRE1\tmp\Build\240817_test_latestPCRE1\W32 -DPCRE_STATIC_RUNTIME=ON -G "Visual Studio 15 2017" -S C:\Users\xzhxj\build\GitSrcs\pcre
+</pre>
+
+<li>cmake build files<pre>
+cmake --build C:\Users\xzhxj\build\240817_test_latestPCRE1\tmp\Build\240817_test_latestPCRE1\W32 -j 4 --config Debug
+</pre>

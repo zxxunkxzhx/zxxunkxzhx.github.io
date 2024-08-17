@@ -1,0 +1,18 @@
+<head>
+    <base href = "240817_test_latestPCRE1/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> debug latest PCRE1  </title>
+</head>
+<body>
+
+This test is to compare against <a href=https://zxxunkxzhx.github.io/doc/pcre/8_12/dbg/240812_dfa_exec.html>240812_dfa_exec</a>
+
+<ol start=0>
+<li><a href=https://zxxunkxzhx.github.io/doc/pcre/8_12/dbg/240812_dfa_exec/ide_toplvl_loop00.jpg> ide_toplvl_loop00 </a> is the same as pcre 8.12 counterpart
+
+<li>ide_toplvl_loop01 also the same
+
+<li>ide_toplvl_loop02 is the same except the last inst is OP_RECURSE ( (?1) not taken as atomic group )
