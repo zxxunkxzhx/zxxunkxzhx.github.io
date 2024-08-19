@@ -1,0 +1,122 @@
+<head>
+    <base href = "8_45/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> memset is faster for larger memory block  </title>
+</head>
+<body>
+<pre>
+// cd /home/zxxu/build/brace0_vs_memset && gcc main.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+
+typedef char mb_t[0x1234];
+
+void use_mb(mb_t* mb)
+{
+	(void)strcpy((char*)mb,
+		"in our demo tester, "
+		"we're using a mem blk which is a little large to trade off the expense to call memset, "
+	);
+}
+
+void brace0_stub()
+{
+/*
+push    rbp
+mov     rbp, rsp
+
+sub     rsp, 1000h
+or      [rsp+1008h+var_1008], 0
+; touched a page
+
+sub     rsp, 240h
+; alloc extra 0x240 bytes instead of 0x23C bytes(alignment=8)
+mov     rax, fs:28h
+mov     [rbp-8], rax
+xor     eax, eax
+
+mov     qword ptr [rbp-1240h], 0
+;inited 8 bytes
+
+mov     qword ptr [rbp-1238h], 0
+;inited 0x10 bytes
+
+lea     rdx, [rbp-1230h]
+mov     eax, 0
+mov     ecx, 244h
+mov     rdi, rdx
+rep stosq
+; 244 * 8 = 1220
+;inited 0x1230 bytes
+
+mov     rdx, rdi
+mov     [rdx], eax
+;init dword ptr [rbp-1210h]
+;inited all
+*/
+	mb_t mb = {0};
+	use_mb(&mb);
+}
+
+void memset_stub()
+{
+	mb_t mb;
+	memset(&mb, 0, sizeof(mb));
+	use_mb(&mb);
+}
+
+int get_diffs(struct timeval* brace0_ticks, struct timeval* memset_ticks)
+{
+	struct timeval t1, t2;
+
+	unsigned cnt;
+
+	if(0 != gettimeofday(&t1, NULL))
+	{
+		perror("gettimeofday failed");
+		return 0;
+	}
+
+	for(cnt = 0; 7654321 > cnt; ++cnt)
+	{
+		brace0_stub();
+	}
+
+	(void)gettimeofday(&t2, NULL);
+
+	timersub(&t2, &t1, brace0_ticks);
+
+	(void)gettimeofday(&t1, NULL);
+
+	for(cnt = 0; 7654321 > cnt ; ++cnt)
+	{
+		memset_stub();
+	}
+
+	(void)gettimeofday(&t2, NULL);
+
+	timersub(&t2, &t1, memset_ticks);
+
+	return 1;
+}
+
+int main()
+{
+	struct timeval brace0_ticks, memset_ticks;
+	if(!get_diffs(&brace0_ticks, &memset_ticks))
+	{
+		puts("get_diffs failed");
+	}
+	else
+	{
+		printf("brace0 is %s than memset\n", timercmp(&brace0_ticks, &memset_ticks, >=) ? "slower" : "faster");
+	}
+	return 0;
+}
+</pre>
