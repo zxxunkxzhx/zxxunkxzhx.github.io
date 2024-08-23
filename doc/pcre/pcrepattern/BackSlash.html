@@ -1,0 +1,24 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> the \ metacharacter </title>
+</head>
+<body>
+
+    <li>[recognized both inside and outside character classes]if \ is followed by a character that is not a number or a letter, it takes away any special meaning that character may have.
+    <li>[recognized both inside and outside character classes]If you want to remove the special meaning from a sequence of characters, you can do so by putting them between \Q and \E <br>
+    An isolated \E that is not preceded by \Q is ignored, such as the pattern `\E` matches exactly "E" <br>
+    If \Q is not followed by \E later in the pattern, the literal interpretation continues to the end of the pattern.<br>
+    If the isolated \Q is inside a character class, this causes an error, because the character class is not terminated.
+    <li><a href=BACKSLASH/escape_one_character.html>escape one <b>character</b> </a>
+    <li>back references: The sequence \g followed by an unsigned or a negative number, optionally enclosed in <a href=BACKSLASH/g_patcall_or_perl_backref/BRACE.html>`{}`</a>, is an absolute or relative back reference. A named back reference can be coded as \g{name}. Such as `(a)(b)\g{2}c` against subject "abbc".
+    <li>Absolute and relative subroutine calls: For compatibility with Oniguruma, \g followed by a name or a number enclosed either in <a href=BACKSLASH/g_patcall_or_perl_backref/LT.html>angle brackets</a> or <a href="BACKSLASH/g_patcall_or_perl_backref/'.html">single quotes</a>, is an alternative syntax for referencing a subpattern as a "subroutine".
+    <li>Generic character types: <a href=BACKSLASH/escape_alt_chars.html>escape alternative chars</a>
+    <li>escape a sequence of chars: <a href=BACKSLASH/escape_multi_chars.html>escape multiple chars</a>
+    <li>Resetting the match start<br>
+    <i> The escape sequence \K causes any previously matched characters not to be included in the final matched sequence. For example, the pattern foo\Kbar matches "foobar", but reports that it has matched at offset 3.
+    \K is acted upon when it occurs inside positive assertions, but is ignored in negative assertions. Note that when a pattern matches, the reported start of the match can be greater than the end of the match. Such as when pattern (?=ab\K) performed on xabyz, group 0 is reported to be matched as [3,1]</i>
+    <li>non-(lookahead|lookahead) assertions

@@ -1,0 +1,32 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> CONDITIONAL SUBPATTERNS </title>
+</head>
+<body>
+<LI>Checking for a used subpattern by number<ul>
+ <li>If the text between the parentheses consists of a sequence of digits, the condition is true if a capturing subpattern of that number has previously matched.
+ <li>An alternative notation is to precede the digits with a plus or minus sign. In this case, the subpattern number is relative rather than absolute.
+ <li>The most recently opened parentheses can be referenced by (?(-1), the next most recent by (?(-2), and so on.
+ <li>Inside loops it can also make sense to refer to subsequent groups. The next parentheses to be opened can be referenced as (?(+1), and so on.
+ <li>(?(-0) or (?(+0) provokes a compile-time error.</ul>
+
+<LI>Checking for a used subpattern by name<ul>
+ <li>Perl uses the syntax (?(&lt;name>)...) or (?('name')...) to test for a used subpattern by name
+ <li>the syntax (?(name)...) is also recognized
+ </ul>
+
+<li>Checking for pattern recursion<pre>
+If the condition is the string (R), and there is no subpattern with the name R, the condition is true
+if a recursive call to the whole pattern or any subpattern has been made. If digits or a name preceded by ampersand follow the letter R,
+the condition is true if the most recent recursion is into a subpattern whose number or name is given.
+</pre>
+
+<li>Defining subpatterns for use by reference only<br>
+If the condition is the string (DEFINE), and there is no subpattern with the name DEFINE, the condition is always false.
+
+<li>Assertion conditions<br>
+If the condition is not in any of the above formats, it must be an assertion. This may be a positive or negative lookahead or lookbehind assertion.

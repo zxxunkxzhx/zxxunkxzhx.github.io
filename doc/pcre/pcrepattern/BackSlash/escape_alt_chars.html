@@ -1,0 +1,17 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Generic character types  </title>
+</head>
+<body>
+<ul>
+<li>\C      Outside a character class, the escape sequence \C matches any one data unit. In the 8-bit library, one data unit is one byte
+<li>\d\D \w\W
+<li>\h \H   any horizontal white space character(U+0009, U+0020, U+00A0     Non-break space)
+<li>\v \V   any vertical white space character(U+000A, U+000B, U+000C, U+000D, U+0085     Next line NEL)
+<li>\s \S   any white space character; HT (9), LF (10), FF (12), CR (13), and space (32); VT (11) is not a space until v8.34
+<LI>\N      a non-newline char; in a character class it means exactly 'N'
+</ul>

@@ -1,0 +1,29 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> repeated assertions </title>
+</head>
+<body>
+<ul>
+<li>If the minimum repetition is greater than zero, 8.12 report error(such as for (?=your_look_aheads){1,2}, it reports `nothing to repeat`); while latest versions obey it once
+<li>If quantifier is {0,n} where n is greater than zero, it is treated as if it were {0,1}. At run time, the rest of the pattern match is tried with and without the assertion, the order depending on the greediness of the quantifier.
+<li>If quantifier is {0},  the assertion is never obeyed, yet following example shows this kind of quantifier is useful when defining groups:<pre>
+(?x) #defined PCRE_EXTENDED, so comments, white spaces and new lines are allowed from now on
+
+
+(?:
+ ( a(?=(b)) ) {0}
+
+ (?2)
+)
+
+#g1 will never be obeyed, yet insided it we defined g2
+#assertion subpatterns don't consume, so it can't be repeated with {} for 8.12; yet g1 can be repeated
+#(?2) is calling instead of capturing the group
+#at last, for subject "cb", the whole pattern can't be matched at pos 0, but can be at pos 1
+</pre>
+</ul>
+
