@@ -1,0 +1,17 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> escape multi characters  </title>
+</head>
+<body><h1> Newline sequences  </h1>
+<P> \R is equivalent to a atomic group (?>\r\n|\n|\x0b|\f|\r|\x85) . This particular group matches either the two-character sequence CR followed by LF, or one of the single characters LF (linefeed, U+000A), VT (vertical tab, U+000B), FF (form feed, U+000C), CR (carriage return, U+000D), or NEL (next line, U+0085).
+
+<p> It is possible to restrict \R to match only CR, LF, or CRLF by setting the option PCRE_BSR_ANYCRLF &#65288;"backslash R"&#65289;
+
+<p> As \R may means a sequence, so \R is not special in character class(it instead means exactly the R char)
+
+<h1> Extended grapheme clusters </h1>
+<p>shall not compile if use \X in non-Unicode mode; while in character class, it exactly means the X char

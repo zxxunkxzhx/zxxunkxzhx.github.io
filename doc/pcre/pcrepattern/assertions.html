@@ -1,0 +1,36 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> assertions </title>
+</head>
+<body>
+
+<H1>Types</H1>
+<p><ul>
+<li> \b \B
+<p>Inside a character class, \b has a different meaning; it matches the backspace character(\B matches the letter B).
+
+<p>A word boundary is a position in the subject string where the current character and the previous character do not both match \w or \W (i.e. one matches \w and the other matches \W), or the start or end of the string if the first or last character matches \w, respectively.
+
+<li> \A \Z \z
+<p>The \A, \Z, and \z assertions differ from the traditional circumflex and dollar (described in the next section) in that they only ever match at the very start and end of the subject string, whatever options are set. <b>if the startoffset argument of pcre_exec() is non-zero, indicating that matching is to start at a point other than the beginning of the subject, \A can never match. </b>The difference between \Z and \z is that \Z matches before a newline at the end of the string as well as at the very end, whereas \z matches only at the end.
+
+<li> \G
+The \G assertion is true only when the current matching position is at the start point of the match, as specified by the startoffset argument of pcre_exec(). It differs from \A when the value of startoffset is non-zero. By calling pcre_exec() multiple times with appropriate arguments, you can mimic Perl's /g option(Note, however, that PCRE's interpretation of \G, as the start of the current match, is subtly different from Perl').
+
+<p>If all the alternatives of a pattern begin with \G, the expression is anchored to the starting match position, and the "anchored" flag is set in the compiled regular expression. 
+<li>lookahead positive assertion
+<li>lookahead negative assertion
+<li>lookbehind (positive|negative) assertions
+</ul>
+
+<H1>Compatibility</H1>
+<p>Assertion subpattern can contain capturing subpatterns if it's a positive assertion, but itself is not a capturing subpattern; <b>it's strongly not suggest for assertion subpattern to contain capturing subpatterns, for example (?=a(b))ab can match group 1 at pos 1 for subject "ab", but the capturing of that group is not as expected(capturing groups when doing assertion is very weird)</b>
+
+<p>assertion subpatterns may be repeated, we should not allow assertion subpatterns to be repeated, as this is very weird; yet I still have <a href=QuestionMark/repeated_assertions.html>few research</a> against it
+
+<H1>Multiple assertions</H1>
+Several assertions may occur and be applied in succession.

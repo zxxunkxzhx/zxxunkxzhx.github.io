@@ -1,0 +1,27 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> back reference  </title>
+</head>
+<body>
+<p> Outside a character class, a backslash followed by a digit greater than 0 (and possibly further digits) is a back reference to a capturing subpattern earlier (that is, to its left) in the pattern, provided there have been that many previous capturing left parentheses.
+
+<p> However, if the decimal number following the backslash is less than 10, it is always taken as a back reference, and causes an error only if there are not that many capturing left parentheses <b>in the entire pattern</b>. In other words, the parentheses that are referenced need not be to the left of the reference <b>for numbers less than 10</b>. A "forward back reference" of <i>this type</i> can make sense when a repetition is involved and the subpattern to the right has participated in an earlier iteration.
+
+<p> It is not possible to have a numerical "forward back reference" to a subpattern whose number is 10 or more using this syntax. There is no such problem when named parentheses are used.
+
+
+<h1> Recursive back references  </h1>
+<p>the pattern   (a|b\1)+    matches any number of "a"s and also "aba", "ababbaa" etc. zxxu:the steps of matching "ababbaa" can be divided as<ul>
+<li> a      // matched a; \1 now is a
+<li> b\1    // matched aba; \1 now is ba
+<li> b\1    // matched ababba; \1 now is bba
+<li> a      // matched the subject
+</ul>
+
+<p>At each iteration of the subpattern, the back reference matches the character string corresponding to the previous iteration. In order for this to work, the pattern must be such that the first iteration does not need to match the back reference. This can be done using alternation, as in the example above<i>, or by a quantifier with a minimum of zero.</i>
+
+<p><b>Back references of this type cause the group that they reference to be treated as an atomic group</b>.

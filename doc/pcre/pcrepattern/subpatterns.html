@@ -1,0 +1,64 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> subpatterns  </title>
+</head>
+<body>
+
+<p>If an opening parenthesis is followed by a question mark and a colon, the subpattern does not do any capturing, and is not counted as a group. For example, if the string "the white queen" is matched against the pattern<pre>
+      the ((?:red|white) (king|queen))</pre>
+the captured substrings are "white queen" and "queen", and are numbered 1 and 2. <i>The maximum number of capturing subpatterns is 65534. </i>
+
+<p><i>As a convenient shorthand, if any option settings are required at the start of a non-capturing subpattern, the option letters may appear between the "?" and the ":". Thus the two patterns
+(?i:saturday|sunday) and (?:(?i)saturday|sunday) match exactly the same set of strings.</i>
+
+<h1>DUPLICATE SUBPATTERN NUMBERS</h1>
+<p> Perl 5.10 introduced a feature whereby each alternative in a subpattern uses the same numbers for its capturing parentheses. Such a subpattern starts with (?| and is itself a non-capturing subpattern. For example, consider this pattern:<pre>
+  (?|(Sat)ur|(Sun))day
+</pre>
+<p> Because the two alternatives are inside a (?| group, both sets of capturing parentheses are numbered one. Thus, when the pattern matches, you can look at captured substring number one, whichever alternative matched.
+
+<p>Inside a (?| group, parentheses are numbered as usual, but the number is reset at the start of each branch. The numbers of any capturing parentheses that follow the subpattern start after the highest number used in any branch.
+
+<p>A back reference to a numbered subpattern uses the most recent value that is set for that number by any subpattern. The following pattern matches "abcabc" or "defdef":
+<pre>
+  /(?|(abc)|(def))\1/
+</pre>
+In contrast, a subroutine call to a numbered subpattern always refers to the first one in the pattern with the given number. The following pattern matches "abcabc" or "defabc":
+<pre>
+  /(?|(abc)|(def))(?1)/
+</pre>
+
+<p><i>If a condition test for a subpattern's having matched refers to a non-unique number, the test is true if any of the subpatterns of that number have matched. </i>
+
+<h1>NAMED SUBPATTERNS</h1>
+<p>In PCRE, a subpattern can be named in one of three ways: (?&LT;name>...) or (?'name'...) or (?P&LTname>.
+
+<p>Names consist of up to 32 alphanumeric characters and underscores, but must start with a non-digit. The PCRE API provides function calls for extracting the name-to-number translation table from a compiled pattern. There is also a convenience function for extracting a captured substring by name. 
+
+<p> By default, a name must be unique within a pattern, but it is possible to relax this constraint by setting the PCRE_DUPNAMES option at compile time. (Duplicate names are also always permitted for subpatterns with the same number)
+
+<p>Suppose you want to match the name of a weekday, either as a 3-letter abbreviation or as the full name, and in both cases you want to extract the abbreviation. Following pattern (ignoring the line breaks) does the job:<PRE>
+  (?'DN'Mon|Fri|Sun)(?:day)?|
+  (?'DN'Tue)(?:sday)?|
+  (?'DN'Wed)(?:nesday)?|
+  (?'DN'Thu)(?:rsday)?|
+  (?'DN'Sat)(?:urday)?
+</PRE>
+
+<P>There are five <B>capturing substrings</B>, but only one is ever set after a match.
+
+<P>If you make a back reference to a non-unique named subpattern from elsewhere in the pattern, the subpatterns to which the name refers are checked in the order in which they appear in the overall pattern. The first one that is set is used for the reference. For example, this pattern matches both "foofoo" and "barbar" but not "foobar" or "barfoo":
+<PRE>
+  (?:(?&lt;DN>foo)|(?&lt;DN>bar))\k&lt;DN>
+</PRE>
+
+<P>If you make a subroutine call to a non-unique named subpattern, the one that corresponds to the first occurrence of the name is used. In the absence of duplicate numbers, this is the one with the lowest number.
+
+<p>If you use a named reference in a condition test, either to check whether a subpattern has matched, or to check for recursion, all subpatterns with the same name are tested. If the condition is true for any one of them, the overall condition is true. This is the same behaviour as testing by number. <i>For further details of the interfaces for handling named subpatterns, see the pcreapi documentation. </i>
+
+<p>Warning: You cannot use different names to distinguish between two subpatterns with the same number because PCRE uses only the numbers when matching. For this reason, an error is given at compile time if different names are given to subpatterns with the same number. However, you can always give the same name to subpatterns with the same number, even when PCRE_DUPNAMES is not set.
+

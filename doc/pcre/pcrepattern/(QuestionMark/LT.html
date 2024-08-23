@@ -1,0 +1,14 @@
+<head>
+    <base href = "/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> lookbehind assertions </title>
+</head>
+<body>
+The contents of a lookbehind assertion are restricted such that all the strings it matches must have a fixed length. However, if there are several top-level alternatives, they do not all have to have the same fixed length. Thus  (?&lt;=bullock|donkey) is permitted
+
+<P>"Subroutine" calls are permitted in lookbehinds, as long as the subpattern matches a fixed-length string. Recursion, however, is not supported.
+
+<P>The implementation of lookbehind assertions is, for each alternative, to temporarily move the current position back by the fixed length and then try to match. If there are insufficient characters before the current position, the assertion fails.
