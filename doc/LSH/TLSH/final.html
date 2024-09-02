@@ -1,0 +1,45 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Finalize updates of the hash bin </title>
+</head>
+<body>
+<pre>
+void TlshImpl::final(int fc_cons_option) 
+{
+    // decide the quartiles
+    // zxxu: quartiles are statistics of bucket slots
+    unsigned int q1, q2, q3;
+    find_quartile(&q1, &q2, &q3, this->a_bucket);
+
+    if (q3 == 0) {
+      // <b style=color:red>zxxu: decide if too sparse by checking the the third quartile</b>
+      delete [] this->a_bucket; this->a_bucket = NULL;
+      return;
+    }
+    
+    for(unsigned int i=0; CODE_SIZE > i; i++) {
+        unsigned char h=0;
+        for(unsigned int j=0; 4 > j; j++) {
+            unsigned int k = this->a_bucket[4*i + j];
+            if( k > q3 ) {
+                h += 3 ..
+            } else if( k > q2 ) {
+                h += 2 ..
+            } else if( k > q1 ) {
+                h += 1 ..
+            }
+        }
+        this->lsh_bin.tmp_code[i] = h;
+    }
+
+    // map the data len into a byte
+    this->lsh_bin.Lvalue = l_capturing(this->data_len);
+    this->lsh_bin.Q.QR.Q1ratio = (unsigned int) ((float)(q1*100)/(float) q3) % 16;
+    this->lsh_bin.Q.QR.Q2ratio = (unsigned int) ((float)(q2*100)/(float) q3) % 16;
+    this->lsh_code_valid = true;   
+}
+</pre>

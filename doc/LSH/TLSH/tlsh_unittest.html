@@ -1,0 +1,16 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> tlsh_unittest (options) </title>
+</head>
+<body>
+<ul>
+<li>-conservative: test tlsh TLSH_OPTION_CONSERVATIVE option, which makes the produced hash code safer(normally the input file for hash calc can be as small as 50 bytes)
+<li>-private: test CMake TLSH_CHECKSUM_0B option; internally use raw_fast_update5_private instead of raw_fast_update5
+<li>-thread: test tlsh TLSH_OPTION_THREADED to speed up the calc of hash; this option is in draft status
+<li>-xlen: passed as the len_diff parameter to Tlsh::totalDiff().  If not specified, len_diff will be true, else false
+<li>...
+</ul>
