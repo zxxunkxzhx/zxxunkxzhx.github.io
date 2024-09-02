@@ -1,0 +1,139 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Feed data and update the hash bin </title>
+</head>
+<body>
+<pre>
+// zxxu: according to TLSH_CTC_final, make sure the windows is 5 bytes
+#define SLIDING_WND_SIZE  5
+
+TlshImpl::TlshImpl()
+{
+    memset(this->slide_window, 0, sizeof this->slide_window);
+    // init fields of the hash
+    memset(&this->lsh_bin, 0, sizeof this->lsh_bin);
+}
+
+#define RNG_SIZE    	SLIDING_WND_SIZE
+
+static void raw_fast_update5(
+	// data to be updated
+	const unsigned char* data,
+	unsigned int len,
+	// data already feed
+	unsigned int fed_len,
+	/* zxxu:
+	a bucket with 256 slots; each slot count for occurrances of 3 similar adj bytes
+	for example, both t3i and t3j contribute to same slot if T3i is similar to T3j
+	*/
+	unsigned int *a_bucket,
+	[in, out]unsigned char *ret_checksum,
+	unsigned char *slide_window)
+{
+	// zxxu: find the pos in window where previous update() left from
+	int j = (int)(fed_len % RNG_SIZE);
+	unsigned char checksum = *ret_checksum;
+
+	unsigned int start_i=0;
+	// SLIDING_WND_SIZE minus 1
+	if ( SLIDING_WND_SIZE_M1 > fed_len ) {
+		int extra = SLIDING_WND_SIZE_M1 - fed_len;
+		start_i	= extra;
+		j	= (j + extra) % RNG_SIZE;
+	}
+	for( unsigned int i=start_i; len > i;  ) {
+		//the likely case
+		if ((i >= 4) && (len > i+5)) {
+			// <b>local bytes take part in the calculations</b>
+			unsigned char a0 = data[i-4];
+			unsigned char a1 = data[i-3];
+			unsigned char a2 = data[i-2];
+			unsigned char a3 = data[i-1];
+			unsigned char a4 = data[i];
+			unsigned char a5 = data[i+1];
+			unsigned char a6 = data[i+2];
+			unsigned char a7 = data[i+3];
+			unsigned char a8 = data[i+4];
+
+			checksum = fast_b_mapping(1, a4, a3, checksum );
+			a_bucket[ fast_b_mapping(49,  a4, a3, a2 ) ]++;
+			a_bucket[ fast_b_mapping(12,  a4, a3, a1 ) ]++;
+			a_bucket[ fast_b_mapping(178, a4, a2, a1 ) ]++;
+			a_bucket[ fast_b_mapping(166, a4, a2, a0 ) ]++;
+			a_bucket[ fast_b_mapping(84,  a4, a3, a0 ) ]++;
+			a_bucket[ fast_b_mapping(230, a4, a1, a0 ) ]++;
+
+			checksum = fast_b_mapping(1, a5, a4, checksum );
+			a_bucket[ fast_b_mapping(49,  a5, a4, a3 ) ]++;
+			a_bucket[ fast_b_mapping(12,  a5, a4, a2 ) ]++;
+			a_bucket[ fast_b_mapping(178, a5, a3, a2 ) ]++;
+			a_bucket[ fast_b_mapping(166, a5, a3, a1 ) ]++;
+			a_bucket[ fast_b_mapping(84,  a5, a4, a1 ) ]++;
+			a_bucket[ fast_b_mapping(230, a5, a2, a1 ) ]++;
+
+			checksum = fast_b_mapping(1, a6, a5, checksum );
+			a_bucket[ fast_b_mapping(49,  a6, a5, a4 ) ]++;
+			a_bucket[ fast_b_mapping(12,  a6, a5, a3 ) ]++;
+			a_bucket[ fast_b_mapping(178, a6, a4, a3 ) ]++;
+			a_bucket[ fast_b_mapping(166, a6, a4, a2 ) ]++;
+			a_bucket[ fast_b_mapping(84,  a6, a5, a2 ) ]++;
+			a_bucket[ fast_b_mapping(230, a6, a3, a2 ) ]++;
+
+			checksum = fast_b_mapping(1, a7, a6, checksum );
+			a_bucket[ fast_b_mapping(49,  a7, a6, a5 ) ]++;
+			a_bucket[ fast_b_mapping(12,  a7, a6, a4 ) ]++;
+			a_bucket[ fast_b_mapping(178, a7, a5, a4 ) ]++;
+			a_bucket[ fast_b_mapping(166, a7, a5, a3 ) ]++;
+			a_bucket[ fast_b_mapping(84,  a7, a6, a3 ) ]++;
+			a_bucket[ fast_b_mapping(230, a7, a4, a3 ) ]++;
+
+			checksum = fast_b_mapping(1, a8, a7, checksum );
+			a_bucket[ fast_b_mapping(49,  a8, a7, a6 ) ]++;
+			a_bucket[ fast_b_mapping(12,  a8, a7, a5 ) ]++;
+			a_bucket[ fast_b_mapping(178, a8, a6, a5 ) ]++;
+			a_bucket[ fast_b_mapping(166, a8, a6, a4 ) ]++;
+			a_bucket[ fast_b_mapping(84,  a8, a7, a4 ) ]++;
+			a_bucket[ fast_b_mapping(230, a8, a5, a4 ) ]++;
+
+			i=i+5;
+			j=RNG_IDX(j+5);
+		} else { // the corner case
+			slide_window[j] = data[i];
+			int j_1 = RNG_IDX(j-1); if (i >= 1) { slide_window[j_1] = data[i-1]; }
+			int j_2 = RNG_IDX(j-2); if (i >= 2) { slide_window[j_2] = data[i-2]; }
+			int j_3 = RNG_IDX(j-3); if (i >= 3) { slide_window[j_3] = data[i-3]; }
+			int j_4 = RNG_IDX(j-4); if (i >= 4) { slide_window[j_4] = data[i-4]; }
+
+			checksum = fast_b_mapping(1, slide_window[j], slide_window[j_1], checksum );
+			a_bucket[ fast_b_mapping(49,  slide_window[j], slide_window[j_1], slide_window[j_2] ) ]++;
+			a_bucket[ fast_b_mapping(12,  slide_window[j], slide_window[j_1], slide_window[j_3] ) ]++;
+			a_bucket[ fast_b_mapping(178, slide_window[j], slide_window[j_2], slide_window[j_3] ) ]++;
+			a_bucket[ fast_b_mapping(166, slide_window[j], slide_window[j_2], slide_window[j_4] ) ]++;
+			a_bucket[ fast_b_mapping(84,  slide_window[j], slide_window[j_1], slide_window[j_4] ) ]++;
+			a_bucket[ fast_b_mapping(230, slide_window[j], slide_window[j_3], slide_window[j_4] ) ]++;
+			i++;
+			j=RNG_IDX(j+1);
+		}
+	}
+	*ret_checksum = checksum;
+}
+
+// Merge (3) adj bytes into an idx of the bucket
+// Return a salty idx into the bucket
+unsigned char faster_b_mapping(unsigned char mod_salt, unsigned char i, unsigned char j, unsigned char k) {
+    unsigned char h;
+    // zxxu: theoretically v_table can be any 256 random permutation bytes, yet it's crucial to this algorithm, so we have to make it constant
+    // zxxu: as this auxiliary table is constant, the swapper shall not be taken as the internal cryptor
+    // zxxu: this permutation table is defined by P.K. Pearson in "Fast Hashing of Variable-Length Text Strings,", which was widely adopted
+    // zxxu: note the salts are not controled by users
+    h = v_table[mod_salt ^ i];
+    h = v_table[h ^ j];
+    // i and j are bytes to be hashed, k may also be a file byte or checksum of bytes which can be taken as a weighted file byte
+    h = v_table[h ^ k];
+    return h;
+}
+</pre>

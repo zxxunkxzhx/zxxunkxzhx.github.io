@@ -1,0 +1,14 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> (CMake) Configs </title>
+</head>
+<body>
+<ul>
+<li>TLSH_BUCKETS_48|BUCKETS_128|BUCKETS_256 (by default -DBUCKETS_128=1): by default, body size of (hash code) is 32 bytes(12 bytes for TLSH_BUCKETS_48, else 64 bytes); <i>although TLSH_BUCKETS_48 makes smaller hash, we only discuss the default case</i>
+<li>TLSH_CHECKSUM_0B|TLSH_CHECKSUM_1B|TLSH_CHECKSUM_3B(by default -DTLSH_CHECKSUM_1B=1): by default, checksum size in hash header is 1 bytes, else 3 bytes; <i>we only discuss the default value as this is suggested by TLSH_CTC_final</i>
+<li>...
+</ul>

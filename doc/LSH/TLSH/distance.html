@@ -1,0 +1,75 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> get distance between hashes </title>
+</head>
+<body>
+All components in the lsh bin accumulate to distance.
+
+
+<p>To meature distance, we have to introduce a helper func:<pre>
+int mod_diff(unsigned int x, unsigned int y, unsigned int R)
+{
+    int dl = 0;
+    int dr = 0;
+    if ( y > x ){
+        dl = (int)(y - x);
+        dr = (int)(x + R - y);
+    }else{
+        dl = (int)(x - y);
+        dr = (int)(y + R - x);
+    }
+    return (dl > dr ? dr : dl);
+}
+</pre>
+
+<h1> The Lvalue component </h1>
+<p>It's optional to accumulate the len difference:<pre>
+    if (len_diff) {
+        int ldiff = mod_diff( this->lsh_bin.Lvalue, other.lsh_bin.Lvalue, RANGE_LVALUE);
+        if ( ldiff == 0 )
+            diff = 0;
+        else if ( ldiff == 1 )
+            diff = 1;
+        else
+           diff += ldiff*length_mult;
+    }
+</pre>
+
+<h1> The Q1ratio and Q2ratio component </h1><pre>
+    int q1diff = mod_diff( this->lsh_bin.Q.QR.Q1ratio, other.lsh_bin.Q.QR.Q1ratio, RANGE_QRATIO);
+    if ( 1 >= q1diff )
+        diff += q1diff;
+    else           
+        diff += (q1diff-1)*qratio_mult;
+
+    ...
+</pre>
+
+<h1> The checksum component </h1><pre>
+    for (int k = 0; TLSH_CHECKSUM_LEN > k ; k++) {    
+      if (this->lsh_bin.checksum[k] != other.lsh_bin.checksum[k] ) {
+        diff ++;
+        break;
+      }
+    }
+</pre>
+
+
+<h1> The tmp_code component </h1><pre>
+int h_distance( int len, const unsigned char x[], const unsigned char y[])
+{
+	int diff = 0;
+
+	for (int i=0; len > i; i++) {
+		// zxxu: bit_pairs_diff_table is a predefined table which is fitted
+		diff += bit_pairs_diff_table[ x[i] ][ y[i] ];
+	}
+	return diff;
+}
+
+diff += h_distance( CODE_SIZE, this->lsh_bin.tmp_code, other.lsh_bin.tmp_code );
+</pre>

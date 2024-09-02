@@ -1,0 +1,51 @@
+<head>
+    <base href = "TLSH/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> TrendMicro LSH  </title>
+</head>
+<body>
+<h1> Introduction </h1>
+<a href=https://tlsh.org/>TLSH</a> is an impl of LSH(local/partial changes sensitive hash) invented by the famous anti-virus company TrendMicro, this hash should have been mature as it's adopted by:<ul>
+<li> VirusTotal (https://developers.virustotal.com/v3.0/reference#files-tlsh)
+<li> Malware Bazaar (https://bazaar.abuse.ch/)
+<li> MISP (https://www.misp-project.org/)
+<li> STIX: https://docs.oasis-open.org/cti/stix/v2.1/stix-v2.1.html
+</ul>
+
+<p>Open source of TLSH can be found at <a href=https://github.com/trendmicro/tlsh>here</a>; besides the src code, the algos, tests, and analysises of this hash can also be found besides the source code in the doc named TLSH_CTC_final.pdf
+
+<h1> Internals </h1>
+Check following internals if you're interested:<ul>
+
+    <li> <a href=Configs.html> (CMake) Configs </a>
+
+    <li> <a href=update.html>Feed data and update the hash bin</a>
+
+    <li> <a href=final.html>Finalize updates of the hash bin</a>
+
+    <li> <a href=distance.html>Get get distance between hashes</a>
+
+    <li> <a href=tlsh_unittest.html>unit tests</a>
+
+</ul>
+
+<h1> Advantages </h1><ol>
+<li><b style=color:green>Reodering text paragraphs still results in small TLSH distance</b>, By its definition, LSH is only sensitive to local changes, but TLSH get good rusults; You can provode it with my provided data by following command:<pre>
+TLSH/bin/tlsh_unittest -c data/ShortcomingsOfSomeLshAlgos.html -f data/ShortcomingsOfSomeLshAlgos.swap_paragraphs
+</pre>
+<li>Support flow update of the hash result(proivde TlshImpl::update which likes MD5_Update)
+<li>Different sized files can have same hashes(unless the -xlen option not specified)
+</ol>
+
+<h1> Disadvantages </h1><ol>
+<li>Having size limit(if TLSH_OPTION_CONSERVATIVE not set, file must be at least 256 bytes to produce its hash; else 50 bytes)
+<li>Original file which has too small entropy can't produce its hash(leads to sparse bucket slots, to say, too many invalid slots)
+<li>TLSH codes may can't be groupped in efficient way<i><br>
+ <p>ideally, if hash codes can be sorted by linear values in each of its dimension, such that if for any hash values(1-dimensions assumed) HashI , HashJ and HashK,<br>
+   if (cmp(HashI,HashJ) > 0 && cmp(HashJ,HashK) > 0), we can assert cmp(HashI,HashK) > 0,
+ then the codes can be searched efficiently
+ 
+ <p>in reality, sequencable hash may don't exists, but codes <b style=color:red>must</b> can be groupped in efficient way</i> is still required for performance reason
