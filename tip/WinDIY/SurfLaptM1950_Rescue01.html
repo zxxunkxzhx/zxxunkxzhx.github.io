@@ -1,0 +1,59 @@
+<head>
+    <base href = "SurfLaptM1950_Rescue01/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Rescue Files from Surface Laptop  </title>
+</head>
+<body>
+<h1> Backgroud </h1>
+Last week, a friend asked me to rescue files from his Surface Laptop. I failed with every tool except for <b>Windows To Go</b>.
+
+<h1> Introduction </h1>
+The model of this Surface is 1950 by checking the back-side of it, following are some infos from the AI robot www.perplexity.ai and other pages about this model of Surface:<ul style="font-style: italic;">
+<li>pre-installed Windows 10
+<li>may have issues after upgraded to Windows 11(such as missing keyborad drives)
+<li>the CPU is INTEL (x64), and may also be ARM
+</ul>
+
+<h1> Solution </h1><ol><li>Download Windows DVD file:<br>
+<i>As Windows 10 consumer edition don't have gpedit.msc supports, </i>I downloaded<pre>
+Windows 10 (x64) Enterprise LTSC (Long-Term Servicing Channel) 2021
+</pre> from https://msdn.microsoft.com/en-us/subscriptions/manage/ and rename into C:\Users\xzhxj\Downloads\WIN10_24091801.iso
+
+<li>Use AOMEI Partition Assistant 10.4.2 to create a Windows To Go USB-Drive(better use ssd usb as it's much faster; keep trying several times until it succeeds)<br>
+<b style=color:red>It's simple but select the target usb drive carefully, especially when there are many drives in your computer.</b>
+
+<li>Boot the Surface using Windows To Go USB-drive(don't use this drive for other devices, as this Windows To Go will be updated/fixed to support this target Surface) and setup the drive:<ul>
+<li>create a local account JohnXu and setup
+<li>add an external keyboard(Surface's keyboard may don't work temply)
+</ul>
+
+<li>Possible problem: host storage is offline
+    <h3>possible problem</h3>
+    In windows to go workspace, host storage is offline by default
+    <h3>possible fix</h3>
+    Under the Disk Management system tool, make the host storage you're interested online
+
+<li>Fix problem: File explorer does not show host storage(s)
+    <h3>problem</h3>
+    In Windows to Go workspace, the Disk Management system tool found a drive of the host machine( bitlocker encrypted ), but File explorer can't show it
+
+    <h3>fix</h3>
+    Right-click on the BitLocker-encrypted drive in Disk Management; 
+    Change Drive Letter to S: (D: ~ Z:); 
+    Open file explorer and unlock the encrypted drive
+
+
+<li>Possible problem: host storage can't be decrypted
+    <h3>possible problem</h3>
+    the unlock menu does not show or is gray
+    <h3>possible fix</h3>
+    <b style=color:green>Since Windows to Go treats the host machine's drivers as removable, you may need to enable BitLocker support of these drivers:</b><ol>
+    <li>WINDOWS+R: gpedit.msc
+    <li>Computer Configuration > Administrative Templates > Windows Components > BitLocker Driver Encryption > <b>Removable Data Drivers</b>
+    <li>Edit the policy "Control use of BitLocker on Removable..." as "allow users to decrypt..."
+    </ol>
+
+<li>Rescue Files
