@@ -1,0 +1,36 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> A1.3.1 </title>
+</head>
+<body>
+<h1>The 64-bit Execution state</h1><ul>
+<li>Provides 31 64-bit general-purpose registers, of which X30 is used as the procedure link register.
+<li>Provides a 64-bit Program Counter (PC)
+<li>Provides stack pointers (SPs), and Exception Link Registers(ELRs)
+<li>Provides 32 128-bit registers for Advanced SIMD vector and scalar floating-point support.
+<li>Defines the Armv8 Exception model, with up to four Exception levels, EL0 - EL3, that
+provide an execution privilege hierarchy
+<li>Defines a number of Process state (PSTATE) elements that hold PE state. The A64
+instruction set includes instructions that operate directly on various PSTATE elements.
+<li>Names each <b>System register</b> using a suffix that indicates the lowest Exception level at which
+the register can be accessed.</ul>
+
+
+<h1>AArch32</h1><ul>
+<li>Provides 13 32-bit general-purpose registers, and a 32-bit PC, SP, and Link Register (LR).
+The LR is used as both an ELR and a procedure link register.
+<li>Provides a single ELR, for exception returns from Hyp mode.
+<li>Provides 32 64-bit registers for Advanced SIMD vector and scalar floating-point support.
+<li>Defines a number of Process state (PSTATE) elements that hold PE state. The A32 and T32
+instruction sets include instructions that operate directly on various PSTATE elements, and
+instructions that access PSTATE by using the Application Program Status Register (APSR)
+or the Current Program Status Register (CPSR).</ul>
+
+<h1>Transferring between Execution states</h1>
+Transferring control between the AArch64 and AArch32 Execution states is known as interprocessing. The PE can
+move between Execution states only on a change of Exception level. This means different software layers, such as an application, an operating system
+kernel, and a hypervisor, executing at different Exception levels, can execute in different Execution states.
