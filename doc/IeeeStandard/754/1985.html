@@ -1,0 +1,22 @@
+<head>
+    <base href = "1985/">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> IEEE 754 Floating Point Standard 1985 </title>
+</head>
+<body>
+<h1> 32-bit (called single precision) number </h1>
+  <h3>format: Sign=1bits; Exponent=8bits, must be biased with 127 when calc actual value, <b style=color:red>or 126 for denormalized finites</b>; Significand|Mantissa|Coefficient=23bits, with implied 1 for normalized finites while 0 for subnormals</h3>
+
+  <h3>coverage</h3>
+    <img src=coverage32.png />
+
+  <h3>explanations</h3>
+  <li>The smallest normalized finite which is larger than 0 is represented as: S=0, E=1, Sig=1.0; which is interpreted as 1.0*pow2(1-127)=pow2(-126)
+  <li>The largest subnormal which is larger than 0 is represented as: S=0, E=0, Sig=0.11...1, which is NEARLY eaqual with 1.0*pow2(0-127)? <b style=color:red>No, the standard re-interpret it as NEARLY 1.0*pow2(1-127), which is pow2(-126)-pow2(-149)</b>
+  <li>The smallest subnormal which is larger than 0 is represented as: S=0, E=0, Sig=0.00...1, which is pow2(-23)*pow2(-126)=pow2(-149)
+  <li>The largest normalized finite is (2-pow2(-23))*pow2(127)=pow2(128)-pow2(114)
+<h1> 64-bit (called double precision) number </h1>
+The standard allocates 1 bit for sign, 11 bits for the exponent, and 52 bits for the significand. The exponent uses a biased representation with a bias of 1023 = pow(2, NUM_OF_EXPONENT_BITS -1) - 1
