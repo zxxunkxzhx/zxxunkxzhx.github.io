@@ -1,0 +1,62 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> IEEE 754 Floating Point Standard – 2008 ( ISO/IEC/IEEE 60559:2011 ) </title>
+</head>
+<body>
+<h1> <a href=1985.html>single and double precision</a> </h1>
+
+<h1> half precision (binary standard) </h1>
+5 bits are used for the exponent and 10 bits for the significand.
+
+<h1> quadruple precision </h1>
+14 bits are used for the exponent, and 113 bits are used for the significand.
+
+<h1> The Decimal Standard decimal32 </h1>
+The main motivation for introducing a decimal standard is the
+fact that a <b>terminating decimal fraction</b> need not give a <b>terminating
+binary fraction</b>. For example, the terminating decimal fraction 0.1 can be given with <b>non-terminating binary fraction</b> as: 0.00011 (0011)recurring = 0.0625 + 0.03125 + ...;
+
+<p>If one computes 100000000 * 0.1 using binary arithmetic and rounding the non-terminating binary fraction up to the next larger number, the answer is: 10000001.490116 instead of 10000000. This is unacceptable in many situations
+
+<p>IEEE 754-2008 has thus introduced a standard for decimal floating point numbers. It allows two alternative representation methods for decimal32 values( BID where significand is represented as binary coded positive integer and DPD as densely packed decimal):<br>
+<img src=2008/BID_and_DPD.png>
+
+<h2> BID </h2>
+<li>smallest normalized finite(which is larger than 0): exponent is -95 and biased into 6,  s00defghi=0000 0011 0;  significand is 0a=0b=0c=0...1; so the result is 0x0300 0001
+<li>smallest subnormal: exponent is biased into 0 which is actually -101; significand is 1; encoding is 0x00 0000 01<pre>
+// _Decimal32 is supported by gcc compiler as a 4-byte number
+int main() {
+    //_Decimal32 smallest_normalized = 1e-95df;
+
+    unsigned ui = 0x1;
+    _Decimal32* decimal32 = (_Decimal32*)&ui;
+
+    printf("Smallest normalized finite: %.8g\n", (double)*decimal32);
+
+    return 0;
+}</pre>
+<li>largest subnormal which is larger than 0 is 1e-95df - 1e-101df (9.999999e-95 or 9999999e-101): exponent is biased into 0; significand is 9999999<pre>
+sg10g9=011
+g8g7=00
+defghi=0
+
+c=1 //100c=9
+tttttttttttttttttttt=8967F // 999999
+//note 10*pow(2,20)-1 can encode 9FFFFF values
+
+==>
+
+encoding is 0x6018967F
+</pre>
+
+<li>largest normalized finite is 9999999*pow10(191-101)=9.999999*pow10(96)
+
+<h2> DPD </h2>
+The last 20 bits are the significand continuation field, consisting of two 10-bit declets. Each declet encodes three decimal digits using the DPD encoding. 
+
+<p>The DPD/3BCD transcoding for the declets is given by the following table. b9...b0 are the bits of the DPD, and d2...d0 are the three BCD digits:<br>
+<img src=2008/DPD_encoding_rules.png>
