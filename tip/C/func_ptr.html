@@ -1,0 +1,51 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> memset is faster for larger memory block  </title>
+</head>
+<body>
+<pre>
+	void cfun(int a, int b, int c)
+	{
+		puts("cfun");
+	}
+	
+	class MyCls {
+	public:
+		void f1() {};
+	};
+	
+	void test00()
+	{
+		assert(cfun == &cfun);
+		// &cfun form is prefered, 
+	}
+	
+	void test01()
+	{
+		printf("%p", &MyCls::f1); // '&' is required when explicitly taking the address of a member function
+	}
+	
+	// test00 and test01 shows the explicit & are suggested
+	
+	void test02()
+	{
+		typedef void (MyCls::*MyClsF1_ptr_t)(); // it can't compile for `typedef void (MyCls::MyCls...
+		MyClsF1_ptr_t MyClsF1_ptr = &MyCls::f1;
+		{
+			MyCls obj;
+			(obj.*MyClsF1_ptr)();
+		}
+	}
+	
+	int main()
+	{
+		test00();
+		test01();
+		test02();
+		return 0;
+	}
+</pre>
