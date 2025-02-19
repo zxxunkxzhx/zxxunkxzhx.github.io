@@ -29,4 +29,4 @@ the condition is true if the most recent recursion is into a subpattern whose nu
 If the condition is the string (DEFINE), and there is no subpattern with the name DEFINE, the condition is always false.
 
 <li>Assertion conditions<br>
-If the condition is not in any of the above formats, it must be an assertion. This may be a positive or negative lookahead or lookbehind assertion.
+If the condition is not in any of the above formats, it must be an assertion. This may be a positive or negative lookahead or lookbehind assertion; such as the pattern (?(?=xxu)z) will only match the character z if the string immediately after the current position contains xxu.

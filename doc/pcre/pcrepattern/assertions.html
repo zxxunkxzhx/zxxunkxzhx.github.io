@@ -30,7 +30,7 @@ The \G assertion is true only when the current matching position is at the start
 <H1>Compatibility</H1>
 <p>Assertion subpattern can contain capturing subpatterns if it's a positive assertion, but itself is not a capturing subpattern; <b>it's strongly not suggest for assertion subpattern to contain capturing subpatterns, for example (?=a(b))ab can match group 1 at pos 1 for subject "ab", but the capturing of that group is not as expected(capturing groups when doing assertion is very weird)</b>
 
-<p>assertion subpatterns may be repeated, we should not allow assertion subpatterns to be repeated, as this is very weird; yet I still have <a href=QuestionMark/repeated_assertions.html>few research</a> against it
+<p>assertion subpatterns may be repeated, we should not allow assertion subpatterns to be repeated, as this is very weird; yet I still have <a href=(QuestionMark/repeated_assertions.html>few research</a> against it
 
 <H1>Multiple assertions</H1>
 Several assertions may occur and be applied in succession.
