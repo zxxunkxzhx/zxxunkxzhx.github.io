@@ -1,0 +1,245 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> bison .output file  </title>
+</head>
+
+<pre>
+Grammar<b style=color:green> zxxu: better titled as <i>Rules</i> </b>
+
+    0 $accept: expr $end<b style=color:green> zxxu: Note $accept is a Nonterminal meaning the valid Grammar and $end is a Terminal meaning yylex() returns 0 or a minus value </b>
+
+    1 expr: expr '+' expr
+    2     | expr '-' expr
+    3     | expr '*' expr
+    4     | expr '/' expr
+    5     | expr '&lt;' expr
+    6     | expr '>' expr
+    7     | NUMBER
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0<b style=color:green> zxxu: <i>$end</i> has token code as 0, this is the reason why char token can't be \0 </b>
+    '*' (42) 3
+    '+' (43) 1
+    '-' (45) 2
+    '/' (47) 4
+    '&lt;' (60) 5
+    '>' (62) 6
+    error (256)
+    NUMBER &lt;str> (258) 7
+
+
+Nonterminals, with rules where they appear
+
+    $accept (10)
+        on left: 0
+    expr (11)
+        on left: 1 2 3 4 5 6 7
+        on right: 0 1 2 3 4 5 6
+
+
+State 0
+
+    0 $accept: • expr $end<b style=color:green> zxxu: the • here points to a NUMBER or an expr </b>
+
+    NUMBER  shift, and go to state 1    <b style=color:green> enter state 1; after shift, state 1 will expect a NUMBER at the stack top  </b>
+
+    expr  go to state 2 <b style=color:green> processed an expr and we enter state 2 </b>
+
+
+State 1 <b style=color:green> replace the NUMBER on stack top with expr </b>
+
+    7 expr: NUMBER •
+
+    $default  reduce using rule 7 (expr) <b style=color:green> The NUMBER is the last token to complete rule 7, we can reduce if can't shift(this is why the symbol is named as $default) </b>
+
+<b style=color:green>
+    we can optimize off this state and remove the "NUMBER  shift, and go to state 1" line of other states(such as from State 0)
+</b>
+
+State 2 <b style=color:green> S2__AccExpr_or_LaBinOp where La means lookahead </b>
+
+    0 $accept: expr • $end
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+
+    $end  shift, and go to state 3
+    '&lt;'   shift, and go to state 4
+    '>'   shift, and go to state 5
+    '+'   shift, and go to state 6
+    '-'   shift, and go to state 7
+    '*'   shift, and go to state 8
+    '/'   shift, and go to state 9
+
+
+State 3 <b style=color:green> Enter this state to accept the Grammar </b>
+
+    0 $accept: expr $end •
+
+    $default  accept
+
+
+State 4 <b style=color:green> S4__ComletingLtExpr where Lt means less than </b>
+
+    5 expr: expr '&lt;' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 10
+
+
+State 5
+
+    6 expr: expr '>' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 11
+
+
+State 6
+
+    1 expr: expr '+' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 12
+
+
+State 7
+
+    2 expr: expr '-' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 13
+
+
+State 8
+
+    3 expr: expr '*' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 14
+
+
+State 9
+
+    4 expr: expr '/' • expr
+
+    NUMBER  shift, and go to state 1
+
+    expr  go to state 15
+
+
+State 10 <b style=color:green> S10__LtExprAsLeft_or_ReduceToExpr </b>
+
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    5     | expr '&lt;' expr •  <b style=color:green> default </b>
+    6     | expr • '>' expr
+
+    '+'  shift, and go to state 6
+    '-'  shift, and go to state 7
+    '*'  shift, and go to state 8
+    '/'  shift, and go to state 9
+
+    '&lt;'  error (nonassociative)
+    '>'  error (nonassociative)
+
+    $default  reduce using rule 5 (expr)
+
+
+State 11
+
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+    6     | expr '>' expr •
+
+    '+'  shift, and go to state 6
+    '-'  shift, and go to state 7
+    '*'  shift, and go to state 8
+    '/'  shift, and go to state 9
+
+    '&lt;'  error (nonassociative)
+    '>'  error (nonassociative)
+
+    $default  reduce using rule 6 (expr)
+
+
+State 12
+
+    1 expr: expr • '+' expr
+    1     | expr '+' expr •
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+
+    '*'  shift, and go to state 8
+    '/'  shift, and go to state 9
+
+    $default  reduce using rule 1 (expr)
+
+
+State 13
+
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    2     | expr '-' expr •
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+
+    '*'  shift, and go to state 8
+    '/'  shift, and go to state 9
+
+    $default  reduce using rule 2 (expr)
+
+
+State 14
+
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    3     | expr '*' expr •
+    4     | expr • '/' expr
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+
+    $default  reduce using rule 3 (expr)
+
+
+State 15
+
+    1 expr: expr • '+' expr
+    2     | expr • '-' expr
+    3     | expr • '*' expr
+    4     | expr • '/' expr
+    4     | expr '/' expr •
+    5     | expr • '&lt;' expr
+    6     | expr • '>' expr
+
+    $default  reduce using rule 4 (expr)
+</pre>
+
+<img src="Verbose.StateTrans.jpg" width=50% />

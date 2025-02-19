@@ -1,0 +1,47 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> The Overall Layout of a Bison Grammar  </title>
+</head>
+<body>
+
+<h1> /* ... */ and //  </h1>
+may appear in any of the sections.
+
+<h1> Prologue to be copied to the beginning of the parser implementation file</h1><ul>
+<li>define types, macros and variables used in the actions
+<li>int yylex(void): no matter if you will call bison with its -p option, we literally add this declaration; the return value is a numeric code which represents a token kind(Bison recognizes any nonpositive value as indicating end-of-input).
+<li>int yyerror(char *str): this func shall always return 0; After yyerror returns, the Bison parser may recover from the error and continue parsing if the grammar contains a suitable error rule(this behavior is not expected from user code when USER call it just like a normal func); else yyparse returns non-zero to indicate an error.
+</ul>
+
+<h1> Declarations </h1><ul>
+<li>declare the tokens
+<li>describe operator precedences if the grammar is ambiguous
+<li>describe the data types of semantic values of various symbols
+</ul>
+
+<h1> Prologue and Declaration example </h1><pre>
+%{
+#define _GNU_SOURCE
+
+#include "ptypes.h"
+%}
+
+%union {
+long n;
+tree t; /* tree is defined in ptypes.h. */
+}
+
+%{
+static void print_token (yytoken_kind_t token, YYSTYPE val);
+%}
+</pre>
+
+<h1> Rules </h1>
+When a rule has no action or the action don't set $$, bison copies the value of $1 into $$.
+
+<h1> Epilogue </h1>
+The Epilogue is copied verbatim to the end of the parser implementation file.

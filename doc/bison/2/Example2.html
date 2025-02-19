@@ -1,0 +1,104 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Example 2 </title>
+</head>
+<body>
+
+<h1> .y file </h1><pre>
+%{
+    #include &lt;stdio.h>
+    #include &lt;stdlib.h>
+    #include &lt;string.h>
+
+    int yylex(void);
+    void yyerror(const char *s) { fprintf(stderr, "Error: %s\n", s); }
+
+    extern int yydebug;
+%}
+
+%union {int num;}
+
+%token NUM
+%%
+
+dims:
+    empty_dims {YYFPRINTF(stderr, "dims: empty_dims\n");}
+  | '[' NUM ']' dims {YYFPRINTF(stderr, "'dims: [' NUM ']' dims\n");}
+  ;
+
+empty_dims:
+    %empty {YYFPRINTF(stderr, "empty_dims: empty\n");}
+  | empty_dims '[' ']' {YYFPRINTF(stderr, "empty_dims: empty_dims '[' ']'\n");}
+  ;
+
+%%
+
+int main() {
+    #if YYDEBUG==1
+    yydebug = 1;
+    #else
+    yydebug = 0;
+    #endif
+    return yyparse();
+}
+</pre>
+
+<h1> .l file </h1><pre>
+%{
+#include &lt;stdio.h>
+#include &lt;stdlib.h>
+#include &lt;string.h>
+
+#include "trace.tab.h"
+
+extern YYSTYPE yylval;
+extern void yyerror(const char *s);
+%}
+%%
+
+[0-9]+    { 
+    yylval.num = atoi(yytext);
+    return NUM;
+}
+
+[][] { return yytext[0]; }
+
+[ \t\r\n]   { }
+
+.         {
+    yyerror("Unexpected character");
+    yyterminate();
+}
+
+%%
+
+int yywrap() { return 1; }
+
+</pre>
+
+<h1> compile </h1><ol>
+<li> cd /home/zxxu/build/Tmp/discard/bison/
+<li> bison -d --debug <a href=Example2/trace.png>--graph</a> <a href=Example2/trace.output.html>--verbose</a> --warnings=all trace.y
+ <pre>
+    .y: warning: 2 shift/reduce conflicts [-Wconflicts-sr]
+    .y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples
+    <i style=color:green>
+    when SR found, bison will shift, but we'd try our best to make a warning free grammar</i>
+ </pre>
+<li> // the .gv output can be viewed at https://www.devtoolsdaily.com/ if you don't have Graphviz installed
+<li> dot -o trace.png -Tpng trace.gv
+<li> flex -o trace.lex.c trace.l
+<li> gcc trace.lex.c trace.tab.c -lfl -o trace.elf
+</ol>
+
+<h1> <a href=Example2/input.empty.html>echo|./trace.elf</a> </h1>
+
+<h1> <a href=Example2/input.empty_bracket.html>echo [] |./trace.elf</a> </h1>
+
+<h1> <a href=Example2/input.num_bracket.html>echo [2] |./trace.elf</a> </h1>
+
+<h1> <a href=Example2/input.num_bracket2.html>echo [2][3] |./trace.elf</a> </h1>

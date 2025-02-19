@@ -1,0 +1,20 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Format of the Rules Section  </title>
+</head>
+<body>
+
+The rules section of the flex input contains a series of rules of the form <br>
+&nbsp;&nbsp;pattern   action<br>
+where the pattern must be unindented and the action must begin on the same line.
+
+<p>In the rules section, any indented or %{ %} enclosed text appearing before the first rule may:<ul>
+ <li>be used to declare variables which are local to the scanning routine and
+ <li>(after the declarations) code which is to be executed whenever the scanning routine is entered.
+</ul>
+
+<p>Other indented or %{ %} text in the rule section is still copied to the output

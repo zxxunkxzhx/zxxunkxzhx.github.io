@@ -1,0 +1,26 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Format of the Definitions Section  </title>
+</head>
+<body>
+<pre>
+The definitions section contains declarations of simple name definitions to simplify the scanner specification, and declarations of start conditions, which are explained in a later section.
+
+Name definitions have the form like:
+    DIGIT    [0-9]
+    ID       [a-z][a-z0-9]*
+A subsequent reference to
+    {DIGIT}+"."{DIGIT}*
+is identical to
+    ([0-9])+"."([0-9])*
+
+An unindented comment is copied verbatim to the output up to the next '*/', any other unindented text are not allowed unless it starts with '%' and can be explained by current version of flex.
+
+Any indented text or text enclosed in '%{' and '%}' is also copied verbatim to the output (with the %{ and %} symbols removed). The %{ and %} symbols must appear unindented on lines by themselves.
+
+A %top{ ... } block is similar to a '%{' ... '%}' block, except that the code in a %top block is relocated to the top of the generated file. Multiple %top blocks are allowed.
+</pre>

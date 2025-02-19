@@ -1,0 +1,120 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Example  </title>
+</head>
+<body>
+
+<h1> .l file </h1><pre>
+#include "parser.tab.h"
+
+extern YYSTYPE yylval;
+void yyerror(const char *s);
+
+%}
+
+%%
+
+[0-9]+    { 
+    yylval.str = strdup(yytext);
+    return NUMBER;
+}
+
+[+\-*/&lt;>] { return yytext[0]; }
+
+[ \t\r\n]   { }
+
+.         {
+    yyerror("Unexpected character");
+    //typically used in lexical analyzers to signal the end of input
+    yyterminate();
+    // in .y, we call YYERROR when ourselves found an error
+}
+
+%%
+
+int yywrap() { return 1; }
+
+</pre>
+
+<h1> .y file </h1><pre>
+void yyerror(const char *s);
+// normally(expecially for bison), a zero or negative value signifies end-of-input
+int yylex();
+
+%}
+
+%start expr
+
+%union {
+    char *str;
+}
+
+%token &lt;str> NUMBER
+
+%nonassoc '&lt;' '>'
+%left '+' '-'
+%left '*' '/'
+
+%%
+
+expr:
+      expr '+' expr   { printf("Addition\n"); }
+    | expr '-' expr   { printf("Subtraction\n"); }
+    | expr '*' expr   { printf("Multiplication\n"); }
+    | expr '/' expr   { printf("Division\n"); }
+    | expr '&lt;' expr   { printf("Less than\n"); }
+    | expr '>' expr   { printf("Greater than\n"); }
+    | NUMBER          { printf("Number: %s\n", $1); free($1); }
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+}
+
+int main() {
+    yyparse();
+    return 0;
+}
+
+</pre>
+
+<h1> compile </h1><ol>
+<li> cd /home/zxxu/build/Tmp/discard/bison/complex_hello_00
+<li> bison -d <a href=Example/VerboseOutput.html>--verbose</a> --warnings=all parser.y
+<li> flex lexer.l
+<li> gcc     lex.yy.c    parser.tab.c    -lfl -o parser
+</ol>
+
+<h1> echo "1 + 2 + 3" | ./parser </h1><pre>
+Number: 1
+Number: 2
+Addition
+Number: 3
+Addition
+</pre>
+
+<h1> echo "5 > 3" | ./parser </h1><pre>
+Number: 5
+Number: 3
+Greater than
+</pre>
+
+<h1> echo "6 + 4 * 2" | ./parser </h1><pre>
+Number: 6
+Number: 4
+Number: 2
+Multiplication
+Addition
+</pre>
+
+<h1> echo "3 > 2 > 1" | ./parser </h1><pre style=color:green>
+Number: 3
+Number: 2
+Error: syntax error
+</pre>

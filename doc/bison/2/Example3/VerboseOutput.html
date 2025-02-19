@@ -1,0 +1,77 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> bison .output file  </title>
+</head>
+
+<pre>
+Grammar
+
+    0 $accept: start $end
+
+    1 start: %empty
+    2      | TKA
+    3      | TKA TKB
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    TKA &lt;chr_val> (258) 2 3
+    TKB &lt;chr_val> (259) 3
+
+
+Nonterminals, with rules where they appear
+
+    $accept (5)
+        on left: 0
+    start (6)
+        on left: 1 2 3
+        on right: 0
+
+
+State 0
+
+    0 $accept: • start $end
+
+    TKA  shift, and go to state 1
+
+    $default  reduce using rule 1 (start)
+
+    start  go to state 2
+
+
+State 1
+
+    2 start: TKA •
+    3      | TKA • TKB
+
+    TKB  shift, and go to state 3
+
+    $default  reduce using rule 2 (start)
+
+
+State 2
+
+    0 $accept: start • $end
+
+    $end  shift, and go to state 4
+
+
+State 3
+
+    3 start: TKA TKB •
+
+    $default  reduce using rule 3 (start)
+
+
+State 4
+
+    0 $accept: start $end •
+
+    $default  accept
+</pre>

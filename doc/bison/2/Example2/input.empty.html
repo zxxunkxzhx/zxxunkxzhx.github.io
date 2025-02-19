@@ -1,0 +1,28 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> echo|./trace.elf  </title>
+</head>
+
+<pre>
+Starting parse
+Entering state 0
+Stack now 0
+Reading a token
+Now at end of input.
+Reducing stack by rule 3 (line 23):
+empty_dims: empty
+-> $$ = nterm empty_dims () <i style=color:green>An nterm named empty_dims which is valueless is matched with empty input</i>
+Entering state 3
+Stack now 0 3
+Now at end of input.
+Reducing stack by rule 1 (line 18):
+   $1 = nterm empty_dims () <i style=color:green>$1(empty_dims) is matched with empty input</i>
+edims: mpty_dims
+-> $$ = nterm dims ()
+Entering state 2
+Stack now 0 2
+</pre>

@@ -1,0 +1,66 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> demo pattern \digit  </title>
+</head><pre>
+...
+
+static void titled_puts(const char* title, const char* dat, size_t datSz);
+
+%}
+
+%%
+
+(group01)\1     titled_puts("patt00", yytext, 0);
+
+(group02)\03     titled_puts("patt01", yytext, 0);
+
+[a-z]+      titled_puts("patt02", yytext, 0);
+
+[0-9]+      titled_puts("patt03", yytext, 0);
+
+.       ;
+
+%%
+
+static void titled_puts(const char* title, const char* dat, size_t datSz)
+{
+    size_t  slen = datSz ? datSz : strlen(dat);
+    printf("%s: '", title);
+    for(size_t sidx=0; sidx &lt; slen; ++sidx)
+    {
+        if( isprint(dat[sidx]) )
+        {
+            putchar( dat[sidx] );
+        }
+        else
+        {
+            printf( "\\x%02x", dat[sidx] );
+        }
+    }
+    printf("'\n");
+}
+
+void test(char* dat, size_t datSz)
+{
+    if(!datSz) datSz = strlen(dat);
+    titled_puts("testing input", dat, datSz);
+    yyin = fopen("yyin.dat", "wb+");
+    fwrite(dat, datSz, 1, yyin);
+    fseek(yyin, 0, SEEK_SET);
+    yylex();
+    fclose(yyin);
+    yyin = NULL;
+}
+
+int main(int argc, char** argv) {
+    test("group01group01", 0);
+    test("group01\x01", 0); // will match patt00
+    test("group02\x00\x03", 9);
+    test("group02\x03", 0); // will match patt01
+    return 0;
+}
+</pre>

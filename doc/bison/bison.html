@@ -1,0 +1,72 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Bison 3.8.1  </title>
+</head>
+<body>
+<h1> Introduction </h1>
+Bison CAN convert an context-free grammar(CFG, any grammar expressed in a superset of BNF is a context-free grammar) into a <b>deterministic LR parser</b> employing any mode of the following: <ul>
+<li> LALR(1) <b>parser tables</b>: Bison uses Look-Ahead LR tables by default
+<li> <b>Canonical LR(1)</b> parser tables: Can handle all LR(1) grammars but rarely used because they can be very large
+<li> <b>IELR(1)</b> parser tables: Inadequacy Elimination LR tables provide the same parsing power as canonical but tries to retain the compactness of LALR(1) tables.
+</ul>
+
+<p>any mode of LR(1) tables are deterministic, they make parsing decisions with 1(a single) lookahead token and follow a <b>single</b> path; <i style=color:green>zxxu: in v3.8.1 "5.2 Shift/Reduce Conflicts", bison said `IF stmt1 ELSE stmt2` has SR  conflicts with `IF stmt1`, so the grammar is ambiguous, yet we say LALR(1) mode of bison is(looks) deterministic because bison can always make decision( prefer longest match, use precedence directives, etc)</i>
+
+<p>For grammars that are ambiguous, bison can generate a GLR(generalized LR) parser which can explore multiple parse paths simultaneously and resolve ambiguity <i>based on additional tokens or ...</i>; 
+
+<p>all properly-written Yacc grammars ought to work with Bison with no change.
+
+<h1> <a href=1.html>Concepts</a></h1>
+
+<h1> Examples </h1><ol>
+<li> <a href=2/Example.html>Example</a> </h1>
+<li> <a href=2/Example2.html>Example 2</a> </h1>
+<li> <a href=2/Example3.html>Example 3</a> </h1>
+<li> <a href=2/Example4.html>Example 4</a> </h1>
+</ol>
+
+<h1> <a href=5.html>Essences</a> </h1>
+
+<h1> Visualizing Your Parser </h1>
+using --graph to produce a DOT file ending with .gv(for old bison, .dot), you will need `apy -y install graphviz` to use the <i>dot</i> command( or use online tools at https://www.devtoolsdaily.com/ and optionally `apy -y install xdot` to render the DOT file locally.
+
+<p>Besides --verbose for textual output and --graph for DOT output, another
+alternative is to output an XML(--xml[=FILE]) file that may then be, with xsltproc(apt -y install xsltproc), rendered as either
+a raw text format equivalent to the verbose file, or as an HTML version of the same file,
+with clickable transitions, or even as a DOT. The .output and DOT files obtained via
+XSLT have no difference whatsoever with those obtained by invoking bison with options
+--verbose or --graph.
+
+<p>following is the steps to produce a html output:<ol>
+<li> bison -d --verbose --warnings=all --xml data_swap_demo.y
+<li> // bison --print-datadir --> /usr/share/bison
+<li> xsltproc /usr/share/bison/xslt/xml2xhtml.xsl data_swap_demo.xml    >data_swap_demo.html
+</ol>
+
+<p>to produce DOT file, change xml2xhtml into xml2dot
+
+<h1> Tracing Your Parser </h1>
+There are several means to enable compilation of trace facilities, in decreasing order of
+preference:<ul>
+<li>-Dparse.trace
+<li>--debug to define YYDEBUG (to 1); to be compliant with yacc , use -t instead
+<li>put '#define YYDEBUG 1' in the prologue of the grammar file
+</ul>
+
+<p>In C the trace facility outputs messages with macro calls of the form YYFPRINTF (stderr, format, args).
+
+<p>Once you have compiled the program with trace facilities, the way to request a trace is to store a nonzero value in the variable yydebug. You can do this by making the C code do it (in main, perhaps), or you can alter the value with a C debugger.
+
+<p>zxxu: the best practice is `bison --debug` and in your C code write:<pre>
+#if YYDEBUG==1
+yydebug = 1;
+#else
+yydebug = 0;
+#endif
+
+then everytime when you wanna trace, call YYFPRINTF
+</pre>

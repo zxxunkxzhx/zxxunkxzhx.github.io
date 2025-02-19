@@ -1,0 +1,72 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Flex 2.6.2  </title>
+</head>
+<body>
+<h1> variables </h1><ul>
+<li>yytext(note there may be \0s before the ending \0, use yyleng to get the actual len; can modify but cannot append characters)
+<li>yyleng(we can change it, yet better use unput or yyless)
+</ul>
+
+<h1> Format of the Input File </h1><pre>
+    <a href=5/1.html>definitions</a>
+    %%
+    <a href=5/2.html>rules</a>
+    %%
+    <a href=5/3.html>user code</a>
+
+recall in the <i>definitions</i> section, unindented comment is copied verbatim to the output; elsewhere comment can't be at the begin of a line except that:
+%{
+/* comments */
+// comment
+%}
+</pre>
+
+<h1> <a href=6.html>Patterns</a> </h1><ol>
+<li> demo pattern \digit:    cd /home/zxxu/build/Tmp/discard/flex     &&     flex   <a href=examples/6_01.html> 6_01.l  </a>    &&  gcc lex.yy.c -o lexer -lfl && ./lexer
+</ol>
+
+<h1> How the Input Is Matched </h1><ol>
+<li> demo the behavior of the unput() function:    cd /home/zxxu/build/Tmp/discard/flex     &&     flex   <a href=examples/7_01.html> 7_01.l  </a>    &&  gcc lex.yy.c -o lexer -lfl && ./lexer
+<li> Due to both buffering of input and read-ahead, when operates on yyin, use flex func like input() instead of c-lib func like fgetc(yyin)
+</ol>
+
+<h1> The Generated Scanner </h1>
+If you do not supply your own version of yywrap(), then you must either use %option noyywrap in which case the scanner behaves as though yywrap returned 1
+
+<p>By default the scanner uses block-reads to read characters from yyin. The nature of how it gets its input can be controlled by defining the YY_INPUT(buf,result,max_size). Its action is to place up to max_size characters in the character array buf and return in the integer variable result either the number of characters read or the constant YY_NULL to indicate 'EOF':<pre>
+// The input() function is not generated in the scanner code
+// Suppress compiler warning such as "input was defined but not used"
+#define YY_NO_INPUT
+
+#define YY_INPUT(buf,result,max_size) \
+{ \
+    unsigned char ch; int rc = my_getchar(&ch); \
+    result = (rc == -1) ? YY_NULL : ((buf[0] = ch), 1); \
+}
+</pre>
+
+<h1> <a href=10.html>Start Conditions</a> </h1>
+
+<h1> The End-of-File Rule </h1>
+The special rule &lt;&lt;EOF>> indicates actions which are to be taken when an end-of-file is encountered, the action must finish by executing a return statement(later we can resume with another call of yylex) or the special yyterminate() action.
+
+<p>&lt;&lt;EOF>> may not be used with other patterns; it may only be qualified with a list of start conditions. If an unqualified EOF rule is given, it applies to all start conditions do not already have &lt;&lt;EOF>> actions.
+
+
+<h1> Interfacing with Yacc </h1>
+<p>yacc parsers such as bison expect to call a routine named yylex() to find the next input token. The routine is supposed to return the type of the next token as well as putting any associated value in the global yylval.
+
+<p>one specifies the '-d' option to yacc to instruct it to generate the file .tab.h containing definitions of all the %tokens appearing in the yacc input. This file is then included in the flex scanner. For example, if one of the tokens is TOK_NUMBER, part of the scanner might look like:<pre>
+    %{
+    #include "y.tab.h"
+    %}
+
+    %%
+
+    [0-9]+        yylval = atoi( yytext ); return TOK_NUMBER;
+</pre>

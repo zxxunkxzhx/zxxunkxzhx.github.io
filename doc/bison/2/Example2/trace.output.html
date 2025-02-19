@@ -1,0 +1,134 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> bison .output file  </title>
+</head>
+
+<pre>
+State 0 conflicts: 1 shift/reduce
+State 7 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: dims $end
+
+    1 dims: empty_dims
+    2     | '[' NUM ']' dims   
+
+    3 empty_dims: %empty
+    4           | empty_dims '[' ']'
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '[' (91) 2 4
+    ']' (93) 2 4
+    error (256)
+    NUM (258) 2
+
+
+Nonterminals, with rules where they appear
+
+    $accept (6)
+        on left: 0
+    dims (7)
+        on left: 1 2
+        on right: 0 2
+    empty_dims (8)
+        on left: 3 4
+        on right: 1 4
+
+
+State 0
+
+    0 $accept: • dims $end
+
+    '['  shift, and go to state 1   <b style=color:green>pushed (the Lookahead) before entering state 1</b>
+
+    '['       [reduce using rule 3 (empty_dims)]<b style=color:red> the (SR) conflict WAS resolved by shift, so this reduction is discarded   </b>
+    $default  reduce using rule 3 (empty_dims)  <b style=color:green>fall back to reduce "", push empty_dims</b>
+
+
+    dims        go to state 2   <b style=color:green>(rule 0: dims on the stack), we can enter state 2</b>
+    empty_dims  go to state 3   <b style=color:green>(rule 1: empty_dims on the stack), we can enter state 3</b>
+
+State 1 <b style=color:green>(Since state 0,) processed 0 or more [NUM]s, followed by [</b>
+
+    2 dims: '[' • NUM ']' dims
+// note stack {.., empty_dims, [} is different with {[} and {[NUM]s, [}, the former will be reduced into empty_dims while the later is for dims
+// btw if you input numberous [NUM]s, a awkwardly implemented parser will crash or bison will run out of memory?
+    NUM  shift, and go to state 4
+
+<b style=color:green>
+    this state can be named as S1__DimsExpectingNum
+</b>
+
+State 2
+
+    0 $accept: dims • $end
+// you will notice in state 9 that `dims: '[' NUM ']' dims` is reduced to dims by rule 2(only rule 0 take care of the $end token)
+    $end  shift, and go to state 5
+
+
+State 3   <b style=color:green>(Since state 0,) processed  0 or more [NUM]s, followed by empty_dims </b>
+
+    1 dims: empty_dims •
+    4 empty_dims: empty_dims • '[' ']'
+
+    '['  shift, and go to state 6
+
+    $default  reduce using rule 1 (dims)
+
+
+State 4  <b style=color:green>(Since state 0,) processed 0 or more [NUM]s, followed by [NUM</b>
+
+    2 dims: '[' NUM • ']' dims
+
+    ']'  shift, and go to state 7
+
+
+State 5
+
+    0 $accept: dims $end •
+
+    $default  accept
+
+
+State 6 <b style=color:green>(Since state 0,) processed  0 or more [NUM]s, followed by empty_dims[ </b>
+
+    4 empty_dims: empty_dims '[' • ']'
+
+    ']'  shift, and go to state 8
+
+
+State 7 <b style=color:green>(Since state 0,) processed 1 or more [NUM]s</b>
+
+    2 dims: '[' NUM ']' • dims
+
+    '['  shift, and go to state 1
+
+    '['       [reduce using rule 3 (empty_dims)]    <b style=color:red>8.2 Understanding Your Parser: Discarded actions are reported between square brackets.</b>
+    $default  reduce using rule 3 (empty_dims)
+
+    dims        go to state 9
+    empty_dims  go to state 3
+
+
+State 8 <b style=color:green>(Since state 0,) processed  0 or more [NUM]s, followed by empty_dims[] </b>
+
+    4 empty_dims: empty_dims '[' ']' •
+
+    $default  reduce using rule 4 (empty_dims)
+
+
+State 9 <b style=color:green>(Since state 0,) processed 1 or more [NUM]s, followed by  dims</b>
+
+    2 dims: '[' NUM ']' dims •
+
+    $default  reduce using rule 2 (dims)
+</pre>

@@ -1,0 +1,99 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Example 4 </title>
+</head>
+<body>
+
+<h1> .l </h1><pre>
+...
+
+#include "25020101.tab.h"
+
+extern YYSTYPE yylval;
+extern void yyerror(const char *s);
+%}
+%%
+
+[0-9]+    { 
+    yylval.num = atoi(yytext);
+    return NUM;
+}
+
+[+\-*/] { return yytext[0]; }
+
+[ \t\r\n]   { }
+
+.         {
+    yyerror("Unexpected character");
+    yyterminate();
+}
+
+%%
+
+int yywrap() { return 1; }
+
+</pre>
+
+<h1> .y </h1><pre>
+...
+
+void yyerror(const char *s) { fprintf(stderr, "Error: %s\n", s); }
+
+int yylex(void);
+%}
+
+%union {
+    int num;
+}
+
+%token &lt;num> NUM
+
+%type &lt;num> expr
+
+%left '+' '-'
+%left '*' '/'
+%%
+
+expr:
+      expr '+' expr {$$ = $1 + $3; printf("Result of add:%d\n", $$);}
+    | expr '-' expr  {$$ = $1 - $3;printf("Result of sub:%d\n", $$);}
+    | expr '*' expr  {$$ = $1 * $3;printf("Result of mul:%d\n", $$);}
+    | expr '/' expr  {$$ = $1 / $3;printf("Result of div:%d\n", $$);}
+    | '-' expr         {$$ = -$2;  printf("Result of -expr:%d\n", $$);}
+    | '(' expr ')'     {$$ = $2;   printf("Result of (expr):%d\n", $$);}
+    | NUM {/* by default assign with $1 */ printf("NUM:%d\n", $1);}
+    ;
+
+%%
+
+int main() {
+    return yyparse();
+}
+
+</pre>
+
+<h1> Compile </h1><ol>
+<li style=font-style:italic> cd /home/zxxu/build/Tmp/discard/bison/
+<li> bison -d --verbose --warnings=all 25020101.y
+<li style=font-style:italic> note bison don't warn here
+<li> flex -o 25020101.lex.c 25020101.l
+<li> gcc -lfl -o 25020101.elf 25020101.lex.c 25020101.tab.c
+</ol>
+
+<h1> echo "-2*3"|./25020101.elf </h1><pre>
+NUM:2
+NUM:3
+Result of mul:6
+Result of -expr:-6
+</pre>
+
+The problem here is bison don't know it should reduce -expr before it decides to shift, following fix is telling bison to make precedence <b style=color:green>for this rule</b>:<pre>
+20a21
+> %precedence UMINUS
+28c29
+>     | '-' expr %prec UMINUS {...
+</pre>

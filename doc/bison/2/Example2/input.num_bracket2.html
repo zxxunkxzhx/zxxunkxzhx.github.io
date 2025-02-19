@@ -1,0 +1,74 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> echo [2][3] |./trace.elf  </title>
+</head>
+
+<pre>
+    Reading a token
+    Next token is token '[' ()
+    Shifting token '[' ()
+    Entering state 1
+Stack now 0 1
+    Reading a token
+    Next token is token NUM ()
+    Shifting token NUM ()
+    Entering state 4
+Stack now 0 1 4
+    Reading a token
+    Next token is token ']' ()
+    Shifting token ']' ()
+    Entering state 7
+Stack now 0 1 4 7
+    Reading a token
+    Next token is token '[' ()
+    Shifting token '[' ()
+    Entering state 1
+Stack now 0 1 4 7 1
+    Reading a token
+    Next token is token NUM ()
+    Shifting token NUM ()
+    Entering state 4
+    Stack now 0 1 4 7 1 4
+    Reading a token
+    Next token is token ']' ()
+    Shifting token ']' ()
+    Entering state 7
+    Stack now 0 1 4 7 1 4 7
+    Reading a token
+    Now at end of input.
+    Reducing stack by rule 3 (line 23):
+    empty_dims: empty
+    -> $$ = nterm empty_dims ()
+    Entering state 3
+Stack now 0 1 4 7 1 4 7 3
+    Now at end of input.
+    Reducing stack by rule 1 (line 18):
+       $1 = nterm empty_dims ()
+    dims: empty_dims
+    -> $$ = nterm dims ()
+    Entering state 9
+Stack now 0 1 4 7 1 4 7 9
+    Reducing stack by rule 2 (line 19):
+       $1 = token '[' ()
+       $2 = token NUM ()
+       $3 = token ']' ()
+       $4 = nterm dims ()
+    'dims: [' NUM ']' dims
+    -> $$ = nterm dims ()
+    Entering state 9
+Stack now 0 1 4 7 9
+    Reducing stack by rule 2 (line 19):
+       $1 = token '[' ()
+       $2 = token NUM ()
+       $3 = token ']' ()
+       $4 = nterm dims ()
+    'dims: [' NUM ']' dims
+    -> $$ = nterm dims ()
+Entering state 2
+Stack now 0 2
+Now at end of input.
+</pre>
