@@ -14,12 +14,13 @@
 If a range that includes letters is used when caseless matching is set, it matches the letters in either case. For example, [W-c] is equivalent to [][\\^_`wxyzabc], matched caselessly
 </PRE>
 
-<h2> POSIX CHARACTER CLASSES </h2
+<h2> POSIX CHARACTER CLASSES: [:<I>CLASS_NAME</I>:] </h2
 The supported class names are:<ul>
  <li>space:      the same as \s ; VT not included before v8.34
- <li>blank:      space and VT; such as [ [:^blank:]] matchs only ` `
+ <li>blank:      space and VT;
  <li>graph:      printing characters, excluding space
+ </ul>
+ 
+<h2> COMPATIBILITY FEATURE FOR WORD BOUNDARIES </h2>
  <li>[[:&lt;:]]  is converted to  \b(?=\w), that is, "start of word"; Only these exact character sequences are recognized. A sequence such as [a[:&lt;:]b] provokes error
  <li>[[:>:]]     is converted to  \b(?&lt;=\w), that is, "end of word"; Only these exact charact...
- <li>...
- </ul>

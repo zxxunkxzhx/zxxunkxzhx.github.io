@@ -9,7 +9,7 @@
 <body>
 <p> Outside a character class, a backslash followed by a digit greater than 0 (and possibly further digits) is a back reference to a capturing subpattern earlier (that is, to its left) in the pattern, provided there have been that many previous capturing left parentheses.
 
-<p> However, if the decimal number following the backslash is less than 10, it is always taken as a back reference, and causes an error only if there are not that many capturing left parentheses <b>in the entire pattern</b>. In other words, the parentheses that are referenced need not be to the left of the reference <b>for numbers less than 10</b>. A "forward back reference" of <i>this type</i> can make sense when a repetition is involved and the subpattern to the right has participated in an earlier iteration.
+<p> However, if the decimal number following the backslash is less than 10(zxxu: https://www.pcre.org/original/doc/html/pcrepattern.html may have a error here, it shall be 8 instead of 10), it is always taken as a back reference, and causes an error only if there are not that many capturing left parentheses <b>in the entire pattern</b>. In other words, the parentheses that are referenced need not be to the left of the reference <b>for numbers less than 10</b>. A "forward back reference" of <i>this type</i> can make sense when a repetition is involved and the subpattern to the right has participated in an earlier iteration.
 
 <p> It is not possible to have a numerical "forward back reference" to a subpattern whose number is 10 or more using this syntax. There is no such problem when named parentheses are used.
 
