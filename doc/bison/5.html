@@ -1,0 +1,79 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Essences </title>
+</head>
+<body>
+
+<p>By default, the precedence of a rule is that of its last token; the resolution of conflicts works by comparing the precedence of the rule being
+considered with that of the lookahead token(If <b style=color:green>either</b> the rule or the lookahead
+token has no precedence, then the default is to shift). <b style=color:green> If the token's precedence is higher, the choice
+is to shift; If the rule's precedence is higher, the choice is to reduce. If they have equal
+precedence, the choice is made based on the associativity of the lookahead token: if %left, reduce; else if %nonassoc, error; else shift(%precedence does not specify the associativity, but bison prefer shift over reduce in sr conflict)</b>
+
+<p style=font-style:italic>zxxu: when no shift involved, and <b>deterministic</b> rr conflicts can be resolved by arbitrarily(so rude?) choosing to disable reductions(the first rule survive?), for example for following grammar:<pre>
+exp: a ";" | b ".";
+a: "0";
+b: "0";
+</pre>
+
+<p>if you run  `bison -d  <a href=5/3_5__01.png>--graph</a> --verbose --warnings=all 250209_00.y && dot -o 250209_00.png -Tpng 250209_00.gv` , you will notice in State 1, R3 which occur first is the rule to do the reduction by default, while R4 can be deterministicly reduced when the lookahead is '.' 
+
+<p>`IF e1 THEN IF e2 THEN s1 ELSE s2` is a good example to apply %precedence, it can be understood in following two ways:<ol>
+<li> IF e1 THEN stmt-no-else ELSE s2
+<li> IF e1 THEN stmt-with-else
+</ol>
+
+<p>we can solve the problem with following code:<pre>
+...
+void yyerror(const char *s) { fprintf(stderr, "Error: %s\n", s); }
+
+int yylex(void);
+%}
+
+%token IDENTIFIER
+
+%token IF
+%token THEN
+
+%token ELSE
+
+// precedence name may not a be a token, so we have to declare `%token PREC_NAME` where PREC_NAME coincides with a token name
+%precedence THEN
+// note ELSE occurs later, which means it has higher precedence
+%precedence ELSE
+
+%%
+
+stmt:
+  expr
+| if_stmt
+;
+
+/*
+The dangling else ambiguity involves the reduction of the rule
+    if_stmt:    IF expr THEN stmt
+and the rule
+    if_stmt:    IF expr THEN stmt ELSE stmt
+
+<b style=color:green>
+Any rule's precedence is by default its last token, for here, we have precedence for THEN and ELSE
+</b>
+*/
+if_stmt:
+  IF expr THEN stmt
+| IF expr THEN stmt ELSE stmt
+;
+
+expr:
+  IDENTIFIER
+;
+%%
+
+int main() {
+    return yyparse();
+}
+</pre>

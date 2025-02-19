@@ -1,0 +1,79 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> The Concepts of Bison  </title>
+</head>
+<body>
+
+<h1> Symbol </h1>
+
+<p>a context-free grammar specifys one or more syntactic <b>groupings</b> and gives rules for constructing them from their parts; For example in the C language, one kind of grouping is called an expression and one rule for making an expression might be "An expression can be made of a minus sign and another expression"
+
+<p>We can also call a grouping as a <b>nonterminal symbol</b>; on other side, we call a <b>token kind</b>(sometimes even short for a token if there is no ambiguity) as terminal <b>symbol</b> or a <b>terminal</b>.
+
+
+<p>By convention a terminal symbol may be uppercase to distinguish them from nonterminals(The special terminal symbol "error" which normally has <b>token code</b> as 256 is reserved for error recovery)
+
+<h1> Character token </h1>
+A character token kind or <b>literal character token</b> is written in the grammar using the same syntax used in C for character constants; 
+
+<p>The numeric code for a character token kind is simply the <i>positive</i> numeric code of the character
+
+<p>All the usual escape sequences used in character literals in C can be used in Bison as well, but you must not use the null character as a character literal because its numeric code, zero, signifies end-of-input(zxxu: yylex may return 0 when no more inputs or found error, so can't return 0 for the null char)
+
+<h1> (Literal) string token </h1>
+For example, ">=" is a literal string token. A literal string token doesn't need to be declared unless you need to ...
+
+<p>You can associate the literal string token with a symbolic name as an alias, using the %token declaration. If you don't do that, the lexical analyzer has to retrieve the token code for the literal string token.
+
+<h1> Rule&State </h1><pre>
+for grammar as following:
+
+nontermxx: TERM01 TERM02 |
+    TERM01 TERM03
+
+there are 2 rules, both telling how to construct nontermxx
+
+at state X, after read TERM01, the parser shift it and go into state Y,  state Y will expect TERM01 at the top of the stack; use --verbose option of bison to view detailed states for your parser
+</pre>
+
+<h1> Semantic Values </h1>
+A formal grammar selects tokens only by their classifications: for example, if a rule mentions the terminal symbol integer constant, it means that any integer constant is grammatically valid in that position. The precise value of the constant is irrelevant to how to parse the
+input: if  'x+4' is <b>grammatical</b> then 'x+1' is equally grammatical.
+
+<p>Bison grammar has both a token kind and a semantic value. The token kind is a terminal symbol defined in the grammar, such as INTEGER(=0x101), IDENTIFIER(=0x102) or ';'(=';').
+
+<p>The semantic value has all the rest of the information about the meaning of the token, such as the value of an integer or a string.
+
+<h1> Semantic Actions </h1>
+For example, here is a rule that says an expression can be the sum of two subexpressions:<pre>
+    expr: expr '+' expr { $$ = $1 + $3; } ;
+</pre>
+<p>The action says how to produce the semantic value of the sum expression from the values
+of the two subexpressions
+
+<h1> Conflicts </h1>
+reduce/reduce conflict happens when the LR(1) parsing algorithm is not able to decide which of two possible reductions (applications of a grammar rule) applies
+
+<p>shift/reduce conflict happens when the LR(1) parsing algorithm don't know whether to apply a reduction or read more of the input and apply a reduction later in the input.
+
+<h1> <a href=1/GLR.html> GLR </a> </h1>
+
+<h1> Bison parser implementation file </h1>
+Keep in mind that the Bison utility(Bison for short) and the Bison parser are two distinct programs: the
+Bison utility is a program whose output is the <b>Bison parser</b> implementation file that becomes
+part of your program.
+
+<h1> <a href=1/Layout.html> The Overall Layout of a Bison Grammar </a> </h1><pre>
+%{
+Prologue
+%}
+Bison declarations
+%%
+Grammar rules
+%%
+Epilogue
+</pre>

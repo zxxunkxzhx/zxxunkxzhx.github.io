@@ -1,0 +1,65 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> demo the behavior of the unput() function  </title>
+</head><pre>
+...
+
+static void titled_puts(const char* title, const char* dat, size_t datSz);
+
+%}
+
+%%
+"hello" {
+    unput('a');
+    titled_puts("patt01", yytext, yyleng);
+}
+
+"abc" {titled_puts("patt02", yytext, yyleng);}
+
+. ;
+%%
+
+
+static void titled_puts(const char* title, const char* dat, size_t datSz)
+{
+    size_t  slen = datSz ? datSz : strlen(dat);
+    printf("%s: '", title);
+    for(size_t sidx=0; sidx &lt; slen; ++sidx)
+    {
+        if( isprint(dat[sidx]) )
+        {
+            putchar( dat[sidx] );
+        }
+        else
+        {
+            printf( "\\x%02x", dat[sidx] );
+        }
+    }
+    printf("'\n");
+}
+
+void test(char* dat, size_t datSz)
+{
+    if(!datSz) datSz = strlen(dat);
+    titled_puts("testing input", dat, datSz);
+    yyin = fopen("yyin.dat", "wb+");
+    fwrite(dat, datSz, 1, yyin);
+    fseek(yyin, 0, SEEK_SET);
+    yylex();
+    fclose(yyin);
+    yyin = NULL;
+}
+
+int main(int argc, char** argv) {
+    test("hellobc", 0);
+    return 0;
+}
+/*
+testing input: 'hellobc'
+patt01: 'hella'
+patt02: 'abc'
+*/

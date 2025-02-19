@@ -1,0 +1,154 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Example 3 </title>
+</head>
+<body>
+
+<h1> .y file </h1><pre>
+%{
+#include &lt;stdio.h>
+#include &lt;stdlib.h>
+#include &lt;string.h>
+int yylex (void);
+void yyerror (char const *s) { fprintf(stderr, "Error: %s\n", s); }
+
+extern int yydebug;
+%}
+
+%union {char chr_val;}
+
+%token &lt;chr_val> TKA
+%token &lt;chr_val> TKB
+
+%printer { fprintf (yyo, "CHR TOKEN(TKA)"); } TKA;
+%printer { fprintf (yyo, "CHR TOKEN(TKB)"); } TKB;
+
+//%printer { fprintf (yyo, "CHR TOKEN('%c')", $$->chr_val); } char;
+%%
+start:
+    %empty {YYFPRINTF(stderr,"B00;\n");}
+    | TKA {YYFPRINTF(stderr,"B01;\n");}
+    | TKA TKB {YYFPRINTF(stderr,"B02;\n");}
+    ;
+%%
+
+int yylex(void)
+{
+    do{
+        int ic = getchar();
+        switch(ic)
+        {
+        case 'a':yylval.chr_val = ic; return TKA;
+        case 'b':yylval.chr_val = ic; return TKB;
+        case ' ': case '\t': case '\r': case '\n': continue;
+        default: return -1;
+        }
+    }while(1);
+    return 0;
+}
+
+int main(){
+    #if YYDEBUG==1
+    yydebug = 1;
+    #else
+    yydebug = 0;
+    #endif
+    return yyparse();
+}
+</pre>
+
+<h1> compile </h1><pre>
+cd /home/zxxu/build/Tmp/discard/bison/
+
+bison -d --debug <a href=Example3/graph.png>--graph</a> <a href=Example3/VerboseOutput.html>--verbose</a> --warnings=all Example3.y
+
+dot -o Example3.png -Tpng Example3.gv
+
+//flex -o Example3.lex.c Example3.l
+//gcc Example3.lex.c Example3.tab.c -lfl -o Example3.elf
+
+gcc Example3.tab.c  -o Example3.elf
+</pre>
+
+<h1> echo|./Example3.elf    or       echo "" |  </h1><pre>
+B00;
+/*
+Starting parse
+Entering state 0
+Stack now 0
+Reading a token
+Now at end of input.
+Reducing stack by rule 1 (line 22):
+B00;
+-> $$ = nterm start ()
+Entering state 2
+Stack now 0 2
+Now at end of input.
+*/
+</pre>
+
+<h1>    echo "ab" | ./Example3.elf     </h1><pre>
+B02;
+/*
+Reading a token
+Next token is token TKA (CHR TOKEN(TKA))
+Shifting token TKA (CHR TOKEN(TKA))
+Entering state 1
+Stack now 0 1
+Reading a token
+Next token is token TKB (CHR TOKEN(TKB))
+Shifting token TKB (CHR TOKEN(TKB))
+Entering state 3
+Stack now 0 1 3
+    Reducing stack by rule 3 (line 24):
+       $1 = token TKA (CHR TOKEN(TKA))
+       $2 = token TKB (CHR TOKEN(TKB))
+    B02;
+    -> $$ = nterm start ()
+    Entering state 2
+Stack now 0 2
+Reading a token
+Now at end of input.
+*/
+</pre>
+
+<h1> echo "bab"|./Example3.elf      OR       echo "b"|./Example3.elf </h1>
+<pre>
+    Next token is token TKB (CHR TOKEN(TKB))
+    Reducing stack by rule 1 (line 22):
+    B00;
+    -> $$ = nterm start ()
+    Entering state 2
+Stack now 0 2
+    Next token is token TKB (CHR TOKEN(TKB))
+    Error: syntax error
+Error: popping nterm start ()
+Stack now 0
+Cleanup: discarding lookahead token TKB (CHR TOKEN(TKB))
+</pre>
+
+<p style=color:red> if don't call with --debug option, the `Error: syntax error` line occurs before printing "B00;"!
+
+
+<h1> echo "ac" | ./Example3.elf  </h1><pre>
+Reading a token
+Next token is token TKA (CHR TOKEN(TKA))
+Shifting token TKA (CHR TOKEN(TKA))
+Entering state 1
+Stack now 0 1
+Reading a token
+Now at end of input.
+Reducing stack by rule 2 (line 23):
+   $1 = token TKA (CHR TOKEN(TKA))
+B01;
+-> $$ = nterm start ()
+Entering state 2
+Stack now 0 2
+Now at end of input
+</pre>
+
+<p style=color:red>on found 'c', we should call yyerror("invalid token ...) while check flex or bison outputs

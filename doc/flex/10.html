@@ -1,0 +1,40 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Start Conditions  </title>
+</head>
+<body>
+`%s a_cond`   means rules outside a_cond apply to it unless explicitly restricted; `%x a_cond`   means rules outside a_cond do not apply to it unless explicitly included; here's a simple example:<pre>
+    %s example
+    %%
+
+    &lt;example>foo   do_something();
+
+    bar            something_else();
+</pre>
+
+<p>it is equivalent to<pre>
+    %x example
+    %%
+
+    &lt;example>foo   do_something();
+
+    &lt;INITIAL,example>bar     something_else();
+</pre>
+
+<p> The default rule (to ECHO any unmatched character) remains active in any start condition. It is equivalent to `&lt;*>.|\n     ECHO;`
+
+<p> BEGIN actions can also be given as indented code at the beginning of the rules section. For example, the following will cause the scanner to enter the SPECIAL start condition whenever yylex() is called and the global variable enter_special is true:<pre>
+
+            int enter_special = 0;
+
+    %x SPECIAL
+    %%
+            if ( enter_special )
+                BEGIN(SPECIAL);
+
+    &lt;SPECIAL>blahblahblah    actions_here;
+</pre>
