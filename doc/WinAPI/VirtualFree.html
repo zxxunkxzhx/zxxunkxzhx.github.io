@@ -1,0 +1,25 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> VirtualFree  </title>
+</head>
+<body>
+
+<h1> `LPVOID lpAddress` arg </h1>
+A pointer to the base address of the region of pages to be freed.
+
+<p>If the dwFreeType parameter is MEM_RELEASE, this parameter must be the base address returned by the VirtualAlloc function when the region of pages is reserved.
+
+<h1> `SIZE_T dwSize` arg </h1>
+If the dwFreeType parameter is MEM_RELEASE, this parameter must be 0 (zero).
+
+<p>If lpAddress is the base address returned by VirtualAlloc and dwSize is 0 (zero), the function decommits the entire region that is allocated by VirtualAlloc.
+
+<h1> dwFreeType.MEM_DECOMMIT </h1>
+The function does not fail if you attempt to decommit an uncommitted page. 
+
+<h1> dwFreeType.MEM_RELEASE </h1>
+If any pages in the region are committed currently, the function first decommits, and then releases them.
