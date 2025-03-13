@@ -1,0 +1,32 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> VirtualAlloc  </title>
+</head>
+<body>
+<h1> Return  </h1>
+The base address of the allocated region of pages.
+
+<h1> `LPVOID lpAddress` arg </h1>
+The starting address of the <i>region</i> to allocate.
+
+<p>If the memory is being reserved, the specified address is rounded down to the nearest multiple of the <b>allocation granularity</b>; To determine the size of a page and the allocation granularity on the host computer, use the GetSystemInfo function.
+
+<p>If the memory (is already reserved and) is being committed, the address is rounded down to the next page boundary(zxxu: current page's page boundary?).
+
+<h1> `SIZE_T dwSize` arg </h1>
+The size of the region, in bytes. If the lpAddress parameter is NULL, this value is rounded up to the next page boundary. Otherwise, the allocated pages include all pages containing one or more bytes in the range from lpAddress to lpAddress+dwSize.
+
+<h1> flAllocationType.MEM_COMMIT </h1>
+Allocates memory charges (from the overall size of memory and the paging files on disk) for the specified reserved memory pages. <i>The function also guarantees that when the caller later initially accesses the memory, the contents will be zero(zxxu: re-commit don't make sure all zeros)</i>
+
+<h1> flAllocationType.MEM_RESERVE </h1>
+memory returned by MEM_RESERVE can be MEM_RELEASE in VirtualFree.
+
+<p>We can simultaneously reserve and commit a region of free pages
+
+<h1> `DWORD  flProtect` arg </h1>
+normally 0
