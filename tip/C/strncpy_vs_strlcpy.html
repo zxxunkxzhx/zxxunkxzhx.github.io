@@ -1,0 +1,79 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> strncpy VS strlcpy </title>
+</head>
+<h1> https://github.com/openbsd/src/blob/master/lib/libc/string/strncpy.c </h1><pre>
+char *
+strncpy(char *dst, const char *src, size_t n)
+{
+    if (n != 0) {
+        char *d = dst;
+        const char *s = src;
+
+        do {
+            if ((*d++ = *s++) == 0) {
+                <i style="text-decoration: line-through;">while (--n != 0) *d++ = 0;</i>
+                break;
+            }
+        } while (--n != 0);
+    }
+    return (dst);
+}
+</pre>
+
+<h1> https://github.com/openbsd/src/blob/master/lib/libc/string/strlcpy.c </h1><pre>
+
+size_t
+strlcpy(char *dst, const char *src, size_t <i style=font-weight:bold>n</i>)
+{
+    const char *osrc = src;
+    size_t nleft = n;
+
+    if (nleft != 0) {
+        while (--nleft != 0) {
+            if ((*dst++ = *src++) == '\0')
+                break;
+        }
+    }
+
+    if (nleft == 0) {
+        if (<i style=font-weight:bold>n</i> != 0)
+            *dst = '\0';
+        while (*src++);
+    }
+
+    return(src - osrc - 1);
+}
+
+</pre>
+
+<h1> strncpy VS strlcpy </h1><ol>
+<li>both strncpy and strlcpy behave as strcpy if n is no less than src's size(for src, size means its strlen plus 1)
+<li>if <i style=font-weight:bold>n</i> is zero, dst is not affected
+<li><hr>
+<li>strlcpy returns size_t but some implemention may return number of bytes actually copied instead; strncpy always return dst
+<li>strlcpy will set dst[n-1] as \0 if n is less than src's size 
+</ol>
+
+<h1> code conversion case 00 </h1><pre>
+strncpy(dest, src, n);
+dest[n - 1] = '\0';
+
+==>
+
+strlcpy(dest, src, n);
+</pre>
+
+<h1> code conversion case 01 </h1><pre>
+strncpy(dest, src, n - 1);
+dest[n - 1] = '\0';
+
+==>
+
+strlcpy(dest, src, n);
+// even if there is no  `dest[n - 1] = '\0';` line, it's still possiblely we shall strlcpy with n instead of 'n-1', <b style=color:red>but making sure n is no larger than dst's capacity</b>
+</pre>
