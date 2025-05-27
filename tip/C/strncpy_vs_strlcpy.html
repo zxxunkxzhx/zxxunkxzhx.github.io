@@ -55,8 +55,9 @@ strlcpy(char *dst, const char *src, size_t <i style=font-weight:bold>n</i>)
 <li>both strncpy and strlcpy behave as strcpy if n is no less than src's size(for src, size means its strlen plus 1)
 <li>if <i style=font-weight:bold>n</i> is zero, dst is not affected
 <li><hr>
-<li>strlcpy returns size_t but some implemention may return number of bytes actually copied instead; strncpy always return dst
-<li>strlcpy will set dst[n-1] as \0 if n is less than src's size 
+<li>some implemention returns number of bytes actually copied; but for here(openbsd), it returns src's len.
+<li>strncpy always return dst
+<li>strlcpy will set dst[n-1] as \0 if n is less than src's size
 </ol>
 
 <h1> code conversion case 00 </h1><pre>
