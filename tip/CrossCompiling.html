@@ -1,0 +1,29 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Cross Compiling </title>
+</head>
+<body>
+
+<h1> MSVC </h1>
+As is known that MSVC is microsoft "visual" toolchain to develop c(++) apps.
+
+<p>To cross-compile from x64 to arm64, we simply call <i>"Microsoft Visual Studio\...\Build\vcvarsall.bat" x64_arm64</i>
+
+<p>To use build system such as CMake, you call `cmake -G "..." -A ARM64`; pupular CMAKE_VS_PLATFORM_NAME are "ARM64","Win32"(not "x86"!) and "x64".
+
+
+<h1> GNU C(++) toolchains </h1>
+Unlike MSVC, you have to provide a specific tool chain to cross-compile.
+
+<p>When cross-compiling, <b>CMAKE_TOOLCHAIN_FILE</b> should set the CMAKE_SYSTEM_PROCESSOR variable to match target architecture that it specifies.
+
+<p>For MSVC, CMAKE_SYSTEM_NAME is always "Windows", yet for gcc toolchains, it can (also) be: Android, Darwin, iOS, Linux, etc; <i style=color:green>note although Android is derived from Linux, we set aside it</i> 
+
+
+<h1> clang toolchains </h1>
+<b style=color:green>Almost all GNU compile options are accepted by clang(LLVM compilier).</b>
+
+<p>If your target arch is apple(such as iMac), you involves clang; clang is tightly integrated with Xcode and supports Apple-specific toolchains like Objective-C and Swift.
