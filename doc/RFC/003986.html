@@ -1,0 +1,268 @@
+﻿<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Uniform Resource Identifier (URI): Generic Syntax </title>
+</head>
+<body>
+
+<h1>1. Introduction</h1>
+
+<B>This rfc Updates 1738 and Obsoletes 2732, 2396, 1808.</b> Please refer to the current edition of the "Internet Official Protocol Standards" (STD 1) for the standardization state and status of this protocol.
+
+<p><i>This rfc excludes portions of RFC 1738 that defined the specific syntax of individual URI schemes(zxxu: the scheme is ended by the scheme delimiter ':'); those portions will be updated as separate documents.</i>
+
+<h2>1.1. Overview of URIs</h2>
+<h3>1.1.1. Generic Syntax</h3>
+Each URI begins with a <b>scheme</b> name, as defined in Section 3.1, that
+refers to a specification for assigning identifiers within that
+scheme.
+
+<p>ZXXU: according to 4.1. URI Reference, <b>URI-reference</b> is either a URI or a relative-ref;  relative-ref is relative, it of course don't have the scheme part;
+
+<p>ZXXU: according to 4.5. Suffix Reference, traditional media may use a suffix as a reference, for example, (http://www.)w3.org/u/r/i , where http://www. is assumed.
+
+<p>As such, the URI syntax is a federated and extensible naming
+system wherein each scheme’s specification may further restrict the
+<i>syntax and semantics</i> of identifiers using that scheme.
+
+<p>ZXXU: <b>Protocol</b> is the actual communication standard and behavior|rule; Scheme is part of URI telling which protocol to use(or no protocol at all).
+
+
+<h3> 1.1.3. URI, URL, and URN </h3>
+A URI can be further classified as a locator, a name(zxxu: a unique name), or both.
+
+<p>Future specifications and related documentation should use the general term "URI" rather than the more restrictive terms "URL" and "URN"
+
+<h2>1.2. Design Considerations</h2>
+<h3> 1.2.1. Transcription </h3>
+A URI is a sequence of characters that is not always represented
+as a sequence of octets, percent-encoded octets may be used within a URI to represent characters.
+
+<h3> 1.2.2. Separating Identification from Interaction </h3>
+URI <b>resolution</b> is the process of determining an <i>access mechanism</i> and the appropriate parameters(zxxu: 例如最终的查询参数) necessary to dereference a URI; this resolution may require several
+iterations(zxxu: such as when accessing a URI, the server may return a 3xx redirect response, indicating that the client needs to access another URI). To use that access mechanism to perform an action on the URI's resource is to "dereference" the URI(zxxu: dereference the resource).
+
+<p><b style=color:green>zxxu: 假设请求某个url最终能得到一个文件，我们把获得access mechanism 的过程称为resolve； 而利用这个mechanism去得到资源(通常为retrieval)的动作叫dereference (the resource)</b>
+
+<p>When URIs are used within information retrieval systems to identify
+sources of information, the most common form of URI dereference is
+"retrieval": making use of a URI in order to retrieve a
+representation of its associated resource. A "representation" is a
+sequence of octets, <i>along with representation metadata describing
+those octets</i>. Depending on the protocols used to perform the retrieval,
+additional information might be supplied about the resource (resource
+metadata).
+
+<p>URI references in information retrieval systems are designed to be
+late-binding: the result of an access is generally determined when it
+is accessed and may vary over time. These <i>references</i> are created in order to be used in the
+future.
+
+<p>Although many URI schemes are named after protocols, this does not
+imply that use of these URIs will result in access to the resource
+via the named protocol(zxxu:即使一个 URI 的 scheme 似乎暗示了某种协议，也不一定非要用那个协议来访问资源, 例如http://example.com 的资源access可以通过 HTTP、HTTPS，甚至是本地缓存).
+
+<p>Keep in mind that URIs are often used simply for the sake of identification.
+
+<h3> 1.2.3. Hierarchical Identifiers </h3>
+The URI syntax is organized hierarchically, with components listed in
+order of decreasing significance from left to right. For some URI
+schemes, the visible hierarchy is limited to the scheme itself:
+everything after the scheme component delimiter (":") is considered
+opaque to URI processing. Other URI schemes make the hierarchy
+explicit <b>and visible to generic parsing algorithms.</b>
+
+<p>The generic syntax uses the slash ("/"), question mark ("?"), and
+number sign ("#") characters to delimit components that are
+significant to the generic parser’s hierarchical interpretation of an
+identifier.
+
+<p style=font-style:italic>hierarchical processing has no effect on an absolute
+URI used in a reference unless it contains one or more dot-segments
+
+
+<h1> 2. Characters </h1>
+This specification does not mandate any particular
+character encoding for mapping between <b>URI character</b>s and the (percent-encoded) octets
+used to store or transmit those characters. <b>When a URI appears in a
+protocol element, the character encoding is defined by that protocol;
+without such a definition, a URI is assumed to be in the same
+character encoding as the surrounding text</b>.
+
+<p>zxxu: <i>In HTTP requests,</i> URIs are percent-encoded to ensure that all characters are transmitted as ASCII. For example for `GET /search?q=hello%20world HTTP/1.1`, the URI chars %20 is decoded as the ' '; note HTTP defaults to UTF-8 for query strings unless otherwise specified Content-Type or Accept-Charset headers; in HTML, if you specified  "meta charset=" , the percent-encoded characters are decoded into octets then the characters under the specified charset.
+
+<h2> 2.1. Percent-Encoding </h2>
+A percent-encoding mechanism is used to represent a data octet in a
+component when that octet’s corresponding character is:<ol>
+<li> outside the allowed set, such as %20, such as %41 when the octet 'A' is one of bytes used to represent a multi-byte character
+<li> is being used as a delimiter of the component
+<li> is being used as a sub-delimiter within the component
+</ol>
+
+<h2> 2.2. Reserved Characters </h2>
+URIs include components and subcomponents that are delimited by
+characters in the "reserved" set. These characters are called
+"reserved" because they may (or may not) be defined as delimiters by
+the generic syntax, by each scheme-specific syntax, or ....
+
+<pre>
+reserved = gen-delims / sub-delims
+gen-delims = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+sub-delims = "!" / "$" / "&" / "'" / "(" / ")"
+/ "*" / "+" / "," / ";" / "="
+</pre>
+
+<h2> 2.3. Unreserved Characters </h2>
+unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+<h2> 2.4. When to Encode or Decode </h2>
+the components and subcomponents
+significant to the scheme-specific dereferencing process (if any)
+must be parsed and separated before the percent-encoded octets within
+those components can be safely decoded, as otherwise the data may be
+mistaken for component delimiters.
+
+<h1> 3. Syntax Components </h1>
+<pre>
+      URI         = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+
+      hier-part   = "//" authority path-abempty
+                  | path-absolute
+                  | path-rootless
+                  | path-empty
+</pre>
+
+<p>When authority is not present, the path cannot begin with two slash characters
+
+<p>"SCHEME:" is technically a valid URI, but scheme-specific applications may reject as it's useless; following URIs are also valid:<pre>
+MyScheme:hi
+MyScheme:/
+MyScheme:/hi
+MyScheme:a:strange:path:
+/*
+ host = IP-literal / IPv4address / reg-name
+ reg-name = *( unreserved / pct-encoded / sub-delims )
+ reg-name is empty for following exmaple
+ */
+MyScheme:///hi
+</pre>
+
+<p>"//..." is not valid as scheme can't be empty, yet for Suffix Reference as is defined in "4.5. ", heur algo is used to complete and make it valid
+
+<p>The following are two example URIs and their component parts:<pre>
+
+         foo://example.com:8042/over/there?name=ferret#nose
+         \_/   \______________/\_________/ \_________/ \__/
+          |           |            |            |        |
+       scheme     authority       path        query   fragment
+          |   _____________________|__
+         / \ /                        \
+         urn:example:animal:ferret:nose
+</pre>
+
+<h2> 3.1.  Scheme </h2>
+Scheme names consist of a sequence of characters beginning with a letter and followed by any combination of ...<pre>
+    scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+</pre>
+
+<h2> 3.2.  Authority </h2>
+authority = [ userinfo "@" ] host [ ":" port ]
+
+<p>The authority component is is terminated by the next slash (zxxu: a kind of path), question mark (zxxu: start of query), or number
+sign (zxxu: start of fragment) character, or by the end of the URI; zxxu: both chatgpt and perplexity said it's SAFE to simply sweep over the authority component by finding above chars
+
+
+<h2> 3.3. Path </h2>
+ABNF as following:<pre>
+#path char; zxxu: better named as segment char
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+segment = *pchar
+segment-nz = 1*pchar
+#without any colon ":"
+segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+
+path-abempty = *( "/" segment )
+path-absolute = "/" [ segment-nz *( "/" segment ) ]
+path-empty
+path-noscheme = segment-nz-nc *( "/" segment )
+path-rootless = segment-nz *( "/" segment )
+</pre>
+
+<p>Aside from dot-segments(. and ..) in hierarchical paths, a <i>path segment</i> is
+considered opaque by the generic syntax.
+
+<h2> 3.4. Query </h2>
+Query's ABNF is<pre>
+    *( pchar / "/" / "?" )
+</pre>
+The characters slash ("/") and question mark ("?") may represent data
+within the query component.
+
+<h2> 3.5. Fragment </h2>
+The fragment identifier component's ABNF is the same with the query component
+
+<h2> 4.1. URI Reference </h2>
+<p style=color:green>zxxu: The word <i>Reference</i> in the concept of <b>URI Reference</b> means reference to resource.
+
+<p>URI-reference = URI / relative-ref
+
+<p style=color:green>zxxu: URI is something defined in `3. Syntax Components`; instead of `4.3. Absolute URI`(btw, Absolute URI=URI + [ "#" fragment ])
+
+
+<h2> 4.2. Relative Reference </h2><pre>
+relative-part = "//" authority path-abempty
+| path-absolute
+| path-noscheme
+| path-empty
+
+relative-ref = relative-part [ "?" query ] [ "#" fragment ]
+</pre>
+
+<p style=color:green>zxxu: relative-part looks the same with hier-part except `path-noscheme VS path-rootless`
+
+<p>A relative reference that begins with two slash characters is termed
+a <b>network-path reference</b>. A
+relative reference that begins with a single slash character is
+termed an <i>absolute-path</i> reference. A relative reference that does
+not begin with a slash character is termed a <b>relative-path</b> reference.
+
+<p>A path segment that contains a colon character (e.g., "this:that")
+cannot be used as the first segment of a relative-path reference, as
+it would be mistaken for a scheme name.
+
+<h2> 4.3. Absolute URI </h2>
+Some protocol elements allow only the absolute form of a URI without
+a fragment identifier.
+
+<p style=color:green>zxxu: To help understanding, we can introduce the conept of <i>relative URI</i>, which is actually a fragment-less relative-ref.
+
+<h2> 4.4. Same-Document Reference </h2>
+
+
+<h2> 4.5. Suffix Reference </h2>
+<p>Although there is no
+standard set of heuristics for disambiguating a URI suffix, many
+client implementations allow them to be entered by the user and
+heuristically resolved.
+
+<p>As a URI suffix has the same syntax as a relative-path reference, a
+suffix reference cannot be used in contexts where a relative
+reference is expected. As a result, suffix references are limited to
+places where there is no defined base URI(zxxu: &lt;base href=").
+
+<h1> 5. Reference Resolution </h1>
+This section defines the process of resolving a URI reference within
+a context that allows relative references.
+
+<h2> 5.1. Establishing a Base URI </h2>
+The term "relative" implies that a "base URI" exists against which
+the relative reference is applied. Aside from fragment-only
+references (Section 4.4), relative references are only usable when a
+base URI is known. A base URI must be established by the parser
+prior to parsing URI references that might be relative. A base URI
+must conform to the <absolute-URI> syntax rule (Section 4.3). If the
+base URI is obtained from a URI reference, then that reference must
+be converted to absolute form and stripped of any fragment component
+prior to its use as a base URI.
