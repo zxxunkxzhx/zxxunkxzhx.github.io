@@ -1,0 +1,26 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> How make Reads a Makefile  </title>
+</head>
+<body>
+<p>
+GNU make does its work in two distinct phases. During the first phase it reads all the
+makefiles, included makefiles, etc. and internalizes all the variables and their values and
+implicit and explicit rules, and builds a dependency graph of all the targets and their
+prerequisites. During the second phase, make uses this internalized data to determine which
+targets need to be updated and run the recipes necessary to update them.
+
+<p>
+It’s important to understand this two-phase approach because it has a direct impact on
+how variable and function expansion happens.
+
+<p>
+We say that expansion is immediate if expansion happens during the first phase: make will expand
+that part of the construct as the makefile is parsed.
+
+<p>We say that expansion is deferred if it is not immediate. Expansion of a deferred construct part is delayed until the expansion is
+used: <b>either when it is referenced in an immediate context, or when it is needed during the
+second phase.</b>

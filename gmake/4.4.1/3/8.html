@@ -1,0 +1,31 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> How Makefiles Are Parsed  </title>
+</head>
+<body>
+
+GNU make parses makefiles line-by-line. Parsing proceeds using the following steps:<ol>
+<li>Read in a full logical line, including backslash-escaped lines (see <a href=https://www.gnu.org/software/make/manual/make.html#Splitting-Lines>3.1.1 for Splitting Long Lines</a> outside of recipe lines; and <a href=../5/1/1.html>Splitting Recipe Lines</a>).
+<li>Remove comments
+<li>If the line begins with the recipe prefix character and we are in a rule context, add the line to the current recipe <b>and continue the next line</b>
+<li>Expand elements of the line which appear in an immediate expansion context
+<li>Scan the line for a separator character, such as ‘:’ or ‘=’, to determine whether the line start a rule or not
+<li>Internalize the resulting operation and continue
+</ol>
+
+<h1>Example</h1><pre>
+define myrule
+target:
+        echo built
+endef
+
+$(myrule)
+</pre>
+
+for above example, when expanding $(myrule) in step 4, according to `Splitting Long Lines outside of recipe lines`, it's expanded to `target: echo built`;
+for step 5, we decide the line start a rule(with echo and built as its prerequisites!)
+
+<p>btw, in order to properly expand a multi-line macro you must use the eval function: this causes the make parser to be run <b>on the results of the expanded macro</b>

@@ -1,0 +1,20 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> wildcard  </title>
+</head>
+<body>
+
+Wildcard expansion is performed by make automatically in targets and in prerequisites.
+In recipes, the shell is responsible for wildcard expansion. In other contexts, wildcard expansion happens only if you request it explicitly with the wildcard function.
+
+<p>$(wildcard pattern…) is replaced by a space-separated list of names of existing files that match one of the given file name patterns.
+
+<p>a makefile to compile all C source files in the directory and then link them together could be written as follows:<pre>
+objects := $(patsubst %.c,%.o,$(wildcard *.c))
+
+foo : $(objects)
+        cc -o foo $(objects)
+</pre>

@@ -1,0 +1,24 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> General Conventions for Makefiles  </title>
+</head>
+<body>
+
+Don’t assume that . is in the path for command execution.
+
+<p>When you need to run programs that are a part of your package during the make, please make sure that:<ul>
+<li> it uses $(srcdir)/ if the file is an unchanging part of the source code.
+
+<li> it uses ./ if the program is built as part of the make
+</ul>Without one of these prefixes, the current search path is used.
+
+<p>
+The distinction between ./ (the build directory) and $(srcdir)/ (the source directory) is important because users can build in a separate directory using the ‘--srcdir’ option to configure. A rule of the form:
+<pre>
+foo.1 : foo.man sedscript
+        sed -f sedscript foo.man > foo.1
+</pre>
+will fail when the build directory is not the source directory, because foo.man and sedscript are in the source directory.

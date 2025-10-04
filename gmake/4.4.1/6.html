@@ -1,0 +1,43 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> How to Use Variables  </title>
+</head>
+<body>
+
+<p>A variable is a name defined in a makefile to represent a string of text, called the variable’s value.
+
+<p>Variables and functions in all parts of a makefile are expanded when read, except when:<ul>
+<li>in recipes
+<li>in the right-hand sides of variable definitions using = or ?=
+<li>in right-hand sides of +=: deferred or immediate, depending on its left hand
+<li>in the bodies of variable definitions using the define directive: may be immediate when in the body of `define immediate +=`, else deferred
+<li><a href=https://www.gnu.org/software/make/manual/make.html#Using-Variables>3.7 How make Reads a Makefile</a> has some further details
+</ul>
+
+<p>The value a variable expands to is that of its most recent definition at the time of expansion. In other words, variables are dynamically scoped.
+
+<p>A variable name may be <b style=color:red>any sequence of characters</b> not containing ‘:’, ‘#’, ‘=’, or whitespace.
+variable names containing characters other than letters, numbers, and underscores should be considered carefully;
+Variable names beginning with ‘.’ and an uppercase letter may be given special meaning in future versions of make;
+we recommend using lower case letters for variable names that serve internal purposes in the makefile.
+
+<p>we can refer a variable as ${multi-chars-var}, $(multi-chars-var) or $single-char-var (such as $@); to get a literal $ in makefile, we use $$.
+
+<p>keep in mind IN SHELL:<ul style=color:red>
+<li>\$ is used to get a literal $
+<li>$$ is to get the shell's PID
+<li>$(pwd) is to call the prog named pwd(while in Makefile, it's referring the var named pwd); so in recipe, you write $$(pwd) to get result from the pwd util
+<li>in shell, $PATH is to get val-of-env-var PATH; while in Makefile, $PATH is to get val-of-var P then append text "ATH"
+</ul>
+
+
+<h1> <a href=6/2.html>2</a> The Two Flavors of Variables </h1>
+
+<h1> <a href=6/3.html>3</a> Advanced Features for Reference to Variables </h1>
+
+<h1> <a href=6/6.html>6</a> Appending More Text to Variables </h1>
+
+<h1> <a href=6/8.html>8</a> Defining Multi-Line Variables </h1>

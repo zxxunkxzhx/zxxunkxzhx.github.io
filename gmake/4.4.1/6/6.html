@@ -1,0 +1,24 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Appending More Text to Variables </title>
+</head>
+<body>
+
+Often it is useful to add more text to the value of a variable already defined. You do this with a line containing ‘+=’ like <i>objects += another.o</i>; 
+This takes the value of the variable objects, and adds the text ‘another.o’ to it, <b style=color:red>preceded by a single space, if it has a value already</b>
+
+<p>zxxu: following code will output "hello world." in gmake 4.3,<pre>
+var00 :=
+var01 := hello
+var01 +=world
+var01 += ${var00}
+
+first_tgt:
+	@echo "enter first_tgt"
+	@echo var01=${var01}.
+	@echo "exit first_tgt"
+
+</pre>so for gmake 4.3, the single space is added only if the appended text is not empty; AI said the result should be "hello world ." in gmake 4.4, I am not sure about it.
