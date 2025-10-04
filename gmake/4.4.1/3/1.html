@@ -1,0 +1,42 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> What Makefiles Contain  </title>
+</head>
+<body>
+
+<h1>rule</h1>
+<p>A rule begins with target(s); A goal is the target (or set of targets) that make is asked to build
+
+<p>When a rule has multiple targets, it is equivalent to writing independent rules for <b>each target</b>.
+
+<p>Rule lists some files that the targets depend on, called the prerequisites; such as<pre>
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+    ;
+</pre>
+
+<p>Rule may also give a <b>recipe</b> to use to create or update the targets.
+
+<h1>variable definition</h1>
+A variable definition is a line that specifies a text string value for a variable.
+
+<h1>directive</h1><ul>
+<li>`include filename1 [filename2...]` or `-include filenames...`(sinclude, silent include)
+<li>`ifeq ($(CC),gcc)`, ifdef $(foo), ...
+<li>Defining Multi-Line Variables, such as <pre>
+define two-lines
+echo foo
+echo $(bar)
+endef
+</pre>
+</ul>
+
+<h1>#</h1><ul>
+<li>within variable references: treated literally, such as $(my#var)
+<li>within function call: treated literally, such as BAR = $(subst a, b#, foo)
+<li>within a recipe: whether or not this is a comment is up to the shell
+<li>within a define directive: either be treated as make comments or as recipe text, depending
+on the context in which the variable is evaluated
+</ul>

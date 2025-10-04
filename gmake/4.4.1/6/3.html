@@ -1,0 +1,22 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Advanced Features for Reference to Variables  </title>
+</head>
+<body>
+
+<h1>Substitution References</h1><pre>
+ ‘$(var:a=b)’ is equivalent to ‘$(patsubst %a,%b,var)’, which replaces every word in $(var) that ends with a by replacing the suffix a with b
+
+<p>Another <I>type</I> of substitution reference has the same form ‘$(var:a=b)’, except that now <i>a</i> must contain a single ‘%’ character. This case is equivalent to ‘$(patsubst a,b,$(var))’.
+
+<h1>Computed Variable Names</h1>
+Variables may be referenced inside the name of a variable. This is called a computed variable name or a nested variable reference. For example,
+<pre>
+x = y
+y = z
+a := $($(x))
+</pre>
+defines a as ‘z’

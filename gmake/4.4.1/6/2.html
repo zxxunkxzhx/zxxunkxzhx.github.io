@@ -1,0 +1,69 @@
+<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> The Two Flavors of Variables  </title>
+</head>
+<body>
+
+There are two Flavors of Variables: recursively expanded variable and simply expanded variables; besides, Immediately Expanded Variable and Conditional Variable Assignment are variants.
+
+<h1>Recursively Expanded Variable Assignment</h1>
+Variables of this sort are defined by lines using ‘=’ or by the define directive.
+
+<p>For example, 
+<pre>
+foo = $(bar)
+bar = $(ugh)
+ugh = Huh?
+
+all:;echo $(foo)
+</pre>
+
+<p>at the first phase, we got three vars with values "$(bar)", "$(ugh)" and "Huh?"; at 2nd phase, we recursively expand foo into Huh?
+
+<p style=color:red>you can't write code like `CFLAGS = $(CFLAGS) -O`, because it will cause an infinite loop in the variable expansion;
+<b style=color:green>yet fortunately make detects the infinite loop and reports an error.</b>
+
+<h1>Simply Expanded Variable Assignment</h1><pre>
+x := foo
+y := $(x) bar
+x := later
+</pre>
+
+is equivalent to<pre>
+y := foo bar
+x := later
+</pre>
+
+<p  style=color:green>Simply expanded variables can also be defined with ::= (Both forms are equivalent in GNU make; however only the ‘::=’ form is described by the POSIX standard)
+
+<h1>Immediately Expanded Variable Assignment</h1>
+Another form of assignment allows for immediate expansion, but unlike simple assignment: the resulting variable will be a recursive var.
+In order to avoid unexpected results, all instances of $ in the value after expansion will be converted into $$.
+
+<pre>
+var = first
+OUT :::= $(var)
+var = second
+</pre>
+results in the OUT variable containing the text ‘first’
+
+<P>If you instead write:<pre>
+var = one$$two
+OUT :::= $(var)
+var = three$$four
+</pre>
+it results in the OUT variable containing the text ‘one$$two’:<pre>
+The value is expanded when the variable is assigned, so the result is the expansion of the first value of var, ‘one$two’
+
+Then the value is re-escaped before the assignment is complete, giving the final result of ‘one$$two’
+
+If later we refer OUT( by ${OUT} ), it's expanded as one$two(note Makefile escape the literal $ into $$)
+</pre>
+
+<p style=color:red>abort: gmake 4.3 does not support Immediately Expanded Variable
+
+<h1>Conditional Variable Assignment</h1>
+There is another assignment operator for variables, ‘?=’, which is a variant of Recursively Expanded Variable.
