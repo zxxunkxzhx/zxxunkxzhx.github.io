@@ -1,0 +1,36 @@
+<head>
+    <base href = "./">
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> list elm retrieve itself's index in the parent OL </title>
+
+    <script>
+
+    function ol_li_get_abs_idx(li) {
+      let ol = li.parentElement;
+      if (!ol) return -1;
+
+      let listItems = Array.from(ol.children).filter(
+        e => e.tagName.toLowerCase() === "li"
+      );
+
+      let idx = listItems.indexOf(li);
+      if (idx === -1) return -1;
+
+      // include 'start' offset from the OL
+      let start = parseInt(ol.getAttribute("start") || "1", 10);
+      return start + idx;
+    }
+    </script>
+</head>
+
+In this html, we will have an OL elem "myOL"
+
+<p>For any given Ith list where `I` is the index(0-based) of the list in the OL, it will show "I am the %uth" list, where u=myOL.start+INDEX_IN_OL
+
+<p>I am an OL:<ol name=myOL start=1000>
+<li>unk_text_a <script>document.write( ""+ol_li_get_abs_idx(document.currentScript.parentElement) )</script> unk_text_b...
+<li>I am the <script>document.write( ""+ol_li_get_abs_idx(document.currentScript.parentElement) )</script>th list
+</ol>
