@@ -1,0 +1,35 @@
+authority = [ userinfo "@" ] host [ ":" port ]
+
+<h1> User Information </h1>
+userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+
+<h1> IPv6address </h1><pre>
+IPv6address = 6( h16 ":" ) ls32
+    / "::" 5( h16 ":" ) ls32
+    / [ h16 ] "::" 4( h16 ":" ) ls32
+    / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+    / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+    / [ *3( h16 ":" ) h16 ] "::" h16 ":" ls32
+    / [ *4( h16 ":" ) h16 ] "::" ls32
+    / [ *5( h16 ":" ) h16 ] "::" h16
+    / [ *6( h16 ":" ) h16 ] "::"
+</pre>
+
+<h1> IPvFuture </h1>
+IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+<h1> IPv4address </h1>
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+
+<h1> reg-name </h1>
+reg-name = *( unreserved / pct-encoded / sub-delims )
+
+<h1> Host </h1>
+host = IP-literal / IPv4address / reg-name
+<p>where IP-literal is <pre>
+    "[" ( IPv6address / IPvFuture ) "]"
+</pre>
+
+<h1> Port </h1>
+port = *DIGIT
+
