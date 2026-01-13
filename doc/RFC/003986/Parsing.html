@@ -1,0 +1,64 @@
+﻿<head>
+    <meta charset="UTF-8">
+    <!--  make sure all devices can work instead of using default settings -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/adsense.js"></script>
+    <title> Parsing URI </title>
+</head>
+<body>
+
+<h1>basics</h1><ul>
+ <li><a href=Parsing/h16.html>h16</a>
+ <li><a href=Parsing/ls32.html>ls32</a>
+ <li><a href=Parsing/pct-encoded.html>pct-encoded</a>: <b style=color:green>we can simply check if a component ptr is inside uri text to tell if that component is normalized</b>
+ <li>pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+ <li>segment = *pchar
+ <li>segment-nz = 1*pchar
+ <li>segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+ <li>URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+ <li>URI-reference = URI / relative-ref
+ <li>relative-ref = relative-part [ "?" query ] [ "#" fragment ]
+  <br>relative-part diff with hier-part only between path-noscheme VS path-rootless, the former is defined as `segment-nz-nc *( "/" segment )`
+  <br>A relative reference that begins with two slash characters is termed a <b>network-path reference</b>
+  <br>relative reference that begins with a single slash character is termed an <i>absolute-path</i> reference.
+  <br>A relative reference that does not begin with a slash character is termed a <b>relative-path reference</b>.
+ <li>absolute-URI: URI without the fragment component; <b style=color:green>we can invent the concept relative-URI</b>
+ </ul>
+
+<h1>scheme</h1>
+<B>scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )</B> where ALPHA is caseless; if a buf does not starts with a scheme, it's not a URI(but may be a relative-ref)
+
+<h1>branches of hier-part</h1><ol>
+<li>"//" authority path-abempty: if a URL's hier-part begins with "//", an authority(may be an empty authority) follow it(path-absolute begins with a '/' and a <i>pchar</i>, path-rootless begins with a <i>pchar</i>)
+<li>path-absolute: if scheme is "data"(zxxu: archive file specifying data in it), in theory we can figure out a URI which has its hier-part as path-absolute(note file:///path/to/your/file belong to the first branch which has authority as empty)
+<li>path-rootless: some URI don't have a concept of path or root-path
+<li>path-empty: such as "mailto:" is valid and will open a blank email client
+</ol>
+
+<h1><a href=Parsing/authority.html>authority</a>( in hier-part 01 )</h1>
+
+<h1>paths</a></h1><pre>
+path-abempty = *( "/" segment )
+path-absolute = "/" [ segment-nz *( "/" segment ) ]
+path-rootless = segment-nz *( "/" segment )
+</pre>
+
+<h1>query</h1>
+query = *( pchar / "/" / "?" )
+
+<h1>fragment</h1>
+fragment = *( pchar / "/" / "?" )
+<p>The fragment identifier component of a URI allows indirect identification of a secondary resource, so if an URI is malicious, it's still malicious after removed the Fragment component
+
+<h1>Suffix Reference</h1>
+has the same syntax as a relative-path reference; <b>cannot be used in contexts where a relative
+reference is expected. As a result, suffix references are limited to
+places where there is no defined base URI</b>
+
+<h1>Reference Resolution</h1>
+This section defines the process of resolving a URI reference within
+a context that allows relative references so that the result is a
+string matching the URI syntax rule<ol>
+<li>Establishing a Base URI: A base URI is absolute-URI.
+
+
