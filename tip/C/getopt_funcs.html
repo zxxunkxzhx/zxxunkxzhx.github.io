@@ -1,0 +1,17 @@
+<h1>getopt(int argc, char *argv[], const char *optstring)</h1>
+An element of argv that starts with '-' (and is not exactly "-" or "--") is an <b>option element</b>. The characters of this element (aside from the initial '-') are <b>option characters</b>.
+<p>
+If there are no more option characters, getopt() returns -1, and <b>optind</b> is the index in argv of the first <b>argv-element</b> that is not an option(zxxu: not an option element; note optarg element is normally parsed immidiately after its option element).
+<p>
+optstring is a string containing the legitimate option characters. If such a character is followed by a colon, the option requires an argument, so getopt() places a pointer to the following text in the same argv-element(<b>-ov</b>), or the text of the following argv-element(<b>-o v</b>), in optarg. Two colons mean an option takes an optional arg. <b style=color:red>If optstring contains W followed by a semicolon, then -W foo is treated as the long option --foo. (The -W option is reserved by POSIX.2 for implementation extensions.) This behavior is a GNU extension, not available with libraries before glibc 2.</b>
+<p>
+By default, getopt() permutes the contents of argv as it scans, so that eventually all the nonoptions are at the end. Two other modes are also implemented(We only discuss the default mode). The special argument "--" forces an end of option-scanning regardless of the scanning mode.
+<p>
+If getopt() finds an option character in argv that was not included in optstring, or if it detects a missing option argument, it returns '?' and sets the external variable optopt to the actual option character(may print an error message if <b>opterr</b> is set).
+
+<h1>struct option</h1><ul>
+<li>const char *name:
+<li>int has_arg: no_argument(0),  required_argument(1), or optional_argument(2)
+<li>int *flag: If flag is NULL, then getopt_long() returns the val member of the struct option struct; Otherwise, getopt_long() returns 0, and flag points to a variable which is set to val if the option is found(zxxu: else that variable's value won't be set).
+<li>int val: <i style=color:green>zxxu: If flag is NULL, it's unnecessary to be an option character, it can be any value but better not be -1(as return -1 means we will end parsing); https://linux.die.net/man/3/getopt_long has an example to set this val when flag is NULL</i>
+</ul>
