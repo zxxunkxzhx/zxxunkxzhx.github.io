@@ -12,8 +12,9 @@
  <li><a href=Parsing/sub-delims_and_unreserved.html>unreserved and sub-delims</a>
  <li><a href=Parsing/h16.html>h16</a>
  <li><a href=Parsing/ls32.html>ls32</a>
- <li><a href=Parsing/pct-encoded.html>pct-encoded</a>: <b style=color:green>we can simply check if a component ptr is inside uri text to tell if that component is normalized</b>
+ <li><a href=Parsing/pct-encoded.html>pct-encoded</a>
  <li>pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+ <li style=font-style:italic>pchar is used in paths only, ":" and "@" are not gen-delims when parsing pchar
  <li>segment = *pchar
  <li>segment-nz = 1*pchar
  <li>segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
@@ -22,7 +23,7 @@
  <li>relative-ref = relative-part [ "?" query ] [ "#" fragment ]
   <br>relative-part diff with hier-part only between path-noscheme VS path-rootless, the former is defined as `segment-nz-nc *( "/" segment )`
   <br>A relative reference that begins with two slash characters is termed a <b>network-path reference</b>
-  <br>relative reference that begins with a single slash character is termed an <i>absolute-path</i> reference.
+  <br>A relative reference that begins with a single slash character is termed an <i>absolute-path</i> reference.
   <br>A relative reference that does not begin with a slash character is termed a <b>relative-path reference</b>.
  <li>absolute-URI: URI without the fragment component; <b style=color:green>we can invent the concept relative-URI</b>
  </ul>
@@ -33,7 +34,7 @@
 <h1>branches of hier-part</h1><ol>
 <li>"//" authority path-abempty: if a URL's hier-part begins with "//", an authority(may be an empty authority) follow it(path-absolute begins with a '/' and a <i>pchar</i>, path-rootless begins with a <i>pchar</i>)
 <li>path-absolute: if scheme is "data"(zxxu: archive file specifying data in it), in theory we can figure out a URI which has its hier-part as path-absolute(note file:///path/to/your/file belong to the first branch which has authority as empty)
-<li>path-rootless: some URI don't have a concept of path or root-path
+<li>path-rootless: will detail it later
 <li>path-empty: such as "mailto:" is valid and will open a blank email client
 </ol>
 
