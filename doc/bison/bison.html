@@ -16,7 +16,8 @@ Bison CAN convert an context-free grammar(CFG, any grammar expressed in a supers
 
 <p>any mode of LR(1) tables are deterministic, they make parsing decisions with 1(a single) lookahead token and follow a <b>single</b> path; <i style=color:green>zxxu: in v3.8.1 "5.2 Shift/Reduce Conflicts", bison said `IF stmt1 ELSE stmt2` has SR  conflicts with `IF stmt1`, so the grammar is ambiguous, yet we say LALR(1) mode of bison is(looks) deterministic because bison can always make decision( prefer longest match, use precedence directives, etc)</i>
 
-<p>For grammars that are ambiguous, bison can generate a GLR(generalized LR) parser which can explore multiple parse paths simultaneously and resolve ambiguity <i>based on additional tokens or ...</i>; 
+<p>For grammars that are ambiguous, bison can generate a GLR(generalized LR) parser which can explore multiple parse paths simultaneously and resolve ambiguity based on additional tokens; such for a parser
+supporting DIGIT+DIGIT+DIGIT..., if your parser did not say '+' opr is left associative or right associative but specified %glr-parser, then parser A can track (DIGIT+DIGIT)+DIGIT, while parser B can track DIGIT+(DIGIT+DIGIT)
 
 <p>all properly-written Yacc grammars ought to work with Bison with no change.
 
