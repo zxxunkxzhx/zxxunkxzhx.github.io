@@ -12,7 +12,6 @@
 #include "parser.tab.h"
 
 extern YYSTYPE yylval;
-void yyerror(const char *s);
 
 %}
 
@@ -85,7 +84,7 @@ int main() {
 </pre>
 
 <h1> compile </h1><ol>
-<li> cd /home/zxxu/build/Tmp/discard/bison/complex_hello_00
+<li> cd /home/zxxu/build/discard/workspaces/bison/complex_hello_00
 <li> bison -d <a href=Example/VerboseOutput.html>--verbose</a> --warnings=all parser.y
 <li> flex lexer.l
 <li> gcc     lex.yy.c    parser.tab.c    -lfl -o parser
