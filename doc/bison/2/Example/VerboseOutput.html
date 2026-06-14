@@ -8,7 +8,7 @@
 </head>
 
 <pre>
-Grammar<b style=color:green> zxxu: better titled as <i>Rules</i> </b>
+Grammar
 
     0 $accept: expr $end<b style=color:green> zxxu: Note $accept is a Nonterminal meaning the valid Grammar and $end is a Terminal meaning yylex() returns 0 or a minus value </b>
 
@@ -36,7 +36,7 @@ Terminals, with rules where they appear
 
 Nonterminals, with rules where they appear
 
-    $accept (10)
+    $accept (10) <b style=color:green> zxxu: symbol code is 10 </b> 
         on left: 0
     expr (11)
         on left: 1 2 3 4 5 6 7
@@ -45,22 +45,18 @@ Nonterminals, with rules where they appear
 
 State 0
 
-    0 $accept: • expr $end<b style=color:green> zxxu: the • here points to a NUMBER or an expr </b>
+    0 $accept: • expr $end <b style=color:green> zxxu: an expr can be expressed with Grammar 1~7, for Grammar 7, we expect NUMBER, else expect expr</b>
 
-    NUMBER  shift, and go to state 1    <b style=color:green> enter state 1; after shift, state 1 will expect a NUMBER at the stack top  </b>
+    NUMBER  shift, and go to state 1    
 
-    expr  go to state 2 <b style=color:green> processed an expr and we enter state 2 </b>
+    expr  go to state 2
 
 
 State 1 <b style=color:green> replace the NUMBER on stack top with expr </b>
 
     7 expr: NUMBER •
 
-    $default  reduce using rule 7 (expr) <b style=color:green> The NUMBER is the last token to complete rule 7, we can reduce if can't shift(this is why the symbol is named as $default) </b>
-
-<b style=color:green>
-    we can optimize off this state and remove the "NUMBER  shift, and go to state 1" line of other states(such as from State 0)
-</b>
+    $default  reduce using rule 7 (expr) <b style=color:green> no input, applying the default </b>
 
 State 2 <b style=color:green> S2__AccExpr_or_LaBinOp where La means lookahead </b>
 
@@ -81,7 +77,7 @@ State 2 <b style=color:green> S2__AccExpr_or_LaBinOp where La means lookahead </
     '/'   shift, and go to state 9
 
 
-State 3 <b style=color:green> Enter this state to accept the Grammar </b>
+State 3
 
     0 $accept: expr $end •
 
@@ -142,7 +138,7 @@ State 9
     expr  go to state 15
 
 
-State 10 <b style=color:green> S10__LtExprAsLeft_or_ReduceToExpr </b>
+State 10 <b style=color:green> S10__LtExprNotMature_or_ReduceToExpr </b>
 
     1 expr: expr • '+' expr
     2     | expr • '-' expr
