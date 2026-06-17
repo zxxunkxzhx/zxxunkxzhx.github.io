@@ -7,14 +7,11 @@
     <title> echo [] |./trace.elf  </title>
 </head>
 
-<pre>
-Stack now 0
-Reading a token
-Next token is token '[' ()
-Shifting token '[' ()
-Entering state 1
-Stack now 0 1
-Reading a token
-Next token is token ']' ()
-Error: syntax error <i style=color:green>expecting a NUM</i>
-</pre>
+<ul>
+<li>edge(S0, [) value stack={[}, state stack={S0, S1)
+<li>edge(S1, ]) Error: syntax error
+<li>Error: popping token '[' (zxxu: and S1)
+<li>Stack now 0
+<li>Cleanup: discarding lookahead token ']'
+<li>Stack now 0
+</ul>

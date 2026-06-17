@@ -54,8 +54,8 @@ int main() {
 #include &lt;string.h>
 
 #include "trace.tab.h"
-
-extern YYSTYPE yylval;
+//extern YYSTYPE yylval;
+//yyerror was not declared in .tab.h
 extern void yyerror(const char *s);
 %}
 %%
@@ -82,7 +82,7 @@ int yywrap() { return 1; }
 
 <h1> compile </h1><ol>
 <li> cd /home/zxxu/build/Tmp/discard/bison/
-<li> bison -d --debug <a href=Example2/trace.png>--graph</a> <a href=Example2/trace.output.html>--verbose</a> --warnings=all trace.y
+<li> bison -d --debug <a href=Example2/trace.png>--graph</a> --verbose --warnings=all trace.y
  <pre>
     .y: warning: 2 shift/reduce conflicts [-Wconflicts-sr]
     .y: note: rerun with option '-Wcounterexamples' to generate conflict counterexamples

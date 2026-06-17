@@ -9,9 +9,14 @@
 <body>
 
 <h1> .l file </h1><pre>
-#include "parser.tab.h"
+#include &lt;stdio.h>
+#include &lt;stdlib.h>
+#include &lt;string.h>
 
-extern YYSTYPE yylval;
+//it's okay to produce .lex.c before .tab.c, but when compiling, .tab.h must exist
+#include "parser.tab.h"
+//yylval is already declared in .tab.h
+//extern YYSTYPE yylval;
 
 %}
 
@@ -83,12 +88,7 @@ int main() {
 
 </pre>
 
-<h1> compile </h1><ol>
-<li> cd /home/zxxu/build/discard/workspaces/bison/complex_hello_00
-<li> bison -d <a href=Example/VerboseOutput.html>--verbose</a> --warnings=all parser.y
-<li> flex lexer.l
-<li> gcc     lex.yy.c    parser.tab.c    -lfl -o parser
-</ol>
+<h1> research Example2 before proceeding </h1>
 
 <h1> echo "1 + 2 + 3" | ./parser </h1><pre>
 Number: 1
