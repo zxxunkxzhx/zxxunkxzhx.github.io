@@ -40,6 +40,26 @@ there are 2 rules, both telling how to construct nontermxx
 at state X, after read TERM01, the parser shift it and go into state Y,  state Y will expect TERM01 at the top of the stack; use --verbose option of bison to view detailed states for your parser
 </pre>
 
+<h1> consistent state and defaulted state </h1>
+A consistent state is a state that has only one possible parser action. If that action is
+a reduction and is encoded as a default reduction, then that consistent state is called
+a <b>defaulted state</b>.
+
+<h1>accepting state</h1>
+<pre>
+any bison parser exit in following way:
+...
+the state stack now is [0,]; the symbol stack is now [start-symbol,](the parser has just performed a reduction whose LHS is the start symbol)
+the parser goto a default state(I term it the pre-accept-state or shifting-end-state which has a shift action for $end)
+the state stack now is [0, pre-accept-state,]; the symbol stack is still [start-symbol,]; the look-ahead is $end(S_YYEOF)
+shift $end and enter the accepting-state(a default state with its rule as `$default  accept` which only has the accept action), the parser(compiled with bison --debug option) will trace like：
+    Stack now 0 pre-accept-state accepting-state
+the parser then finalize like:
+    Stack now 0 pre-accept-state accepting-state
+    Cleanup: popping token "end of file"...
+    Cleanup: popping nterm // poping the start-symbol nonterminal
+</pre>
+
 <h1> Semantic Values </h1>
 A formal grammar selects tokens only by their classifications: for example, if a rule mentions the terminal symbol integer constant, it means that any integer constant is grammatically valid in that position. The precise value of the constant is irrelevant to how to parse the
 input: if  'x+4' is <b>grammatical</b> then 'x+1' is equally grammatical.
@@ -54,6 +74,11 @@ For example, here is a rule that says an expression can be the sum of two subexp
 </pre>
 <p>The action says how to produce the semantic value of the sum expression from the values
 of the two subexpressions
+
+<h1> Lookahead </h1>
+When a token is read, it is not immediately shifted; first it becomes the lookahead token, which is not on the stack.
+<p>
+The lookahead token is stored in the variable yychar. Its semantic value and location, if any, are stored in the variables yylval and yylloc.
 
 <h1> Conflicts </h1>
 reduce/reduce conflict happens when the LR(1) parsing algorithm is not able to decide which of two possible reductions (applications of a grammar rule) applies
