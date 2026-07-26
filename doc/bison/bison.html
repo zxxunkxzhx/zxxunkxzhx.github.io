@@ -8,13 +8,13 @@
 </head>
 <body>
 <h1> Introduction </h1>
-Bison CAN convert an context-free grammar(CFG, any grammar expressed in a superset of BNF is a context-free grammar) into a <b>deterministic LR parser</b> employing any mode of the following: <ul>
-<li> LALR(1) <b>parser tables</b>: Bison uses Look-Ahead LR tables by default
-<li> <b>Canonical LR(1)</b> parser tables: Can handle all LR(1) grammars but rarely used because they can be very large
-<li> <b>IELR(1)</b> parser tables: Inadequacy Elimination LR tables provide the same parsing power as canonical but tries to retain the compactness of LALR(1) tables.
+<a href=https://www.gnu.org/software/bison/manual/bison.html>Bison</a> CAN convert an context-free grammar(CFG, any grammar expressed in a superset of BNF is a context-free grammar) into a deterministic LR parser(we name .y as parser impl file and .tab.c as parser file) employing any mode of the following: <ul>
+<li> LALR(1): by default we use this; LR means left-2-right
+<li> Canonical LR(1): Can handle all LR(1) grammars but rarely used because they can be very large
+<li> IELR(1): Inadequacy Elimination LR tables provide the same parsing power as canonical but tries to retain the compactness of LALR(1) tables.
 </ul>
 
-<p>any mode of LR(1) tables are deterministic, they make parsing decisions with 1(a single) lookahead token and follow a <b>single</b> path; <i style=color:green>zxxu: in v3.8.1 "5.2 Shift/Reduce Conflicts", bison said `IF stmt1 ELSE stmt2` has SR  conflicts with `IF stmt1`, so the grammar is ambiguous, yet we say LALR(1) mode of bison is(looks) deterministic because bison can always make decision( prefer longest match, use precedence directives, etc)</i>
+<p>any mode of LR(1) tables are deterministic, they make parsing decisions with 1(a single) lookahead token
 
 <p>For grammars that are ambiguous, bison can generate a GLR(generalized LR) parser which can explore multiple parse paths simultaneously and resolve ambiguity based on additional tokens; such for a parser
 supporting DIGIT+DIGIT+DIGIT..., if your parser did not say '+' opr is left associative or right associative but specified %glr-parser, then parser A can track (DIGIT+DIGIT)+DIGIT, while parser B can track DIGIT+(DIGIT+DIGIT)

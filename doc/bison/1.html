@@ -8,51 +8,142 @@
 </head>
 <body>
 
-<h1> Symbol </h1>
-
-<p>a context-free grammar specifys one or more syntactic <b>groupings</b> and gives rules for constructing them from their parts; For example in the C language, one kind of grouping is called an expression and one rule for making an expression might be "An expression can be made of a minus sign and another expression"
-
-<p>We can also call a grouping as a <b>nonterminal symbol</b>; on other side, we call a <b>token kind</b>(sometimes even short for a token if there is no ambiguity) as terminal <b>symbol</b> or a <b>terminal</b>.
-
-
-<p>By convention a terminal symbol may be uppercase to distinguish them from nonterminals(The special terminal symbol "error" which normally has <b>token code</b> as 256 is reserved for error recovery)
-
-<h1> Character token </h1>
-A character token kind or <b>literal character token</b> is written in the grammar using the same syntax used in C for character constants; 
-
-<p>The numeric code for a character token kind is simply the <i>positive</i> numeric code of the character
-
-<p>All the usual escape sequences used in character literals in C can be used in Bison as well, but you must not use the null character as a character literal because its numeric code, zero, signifies end-of-input(zxxu: yylex may return 0 when no more inputs or found error, so can't return 0 for the null char)
-
-<h1> (Literal) string token </h1>
-For example, ">=" is a literal string token. A literal string token doesn't need to be declared unless you need to ...
-
-<p>You can associate the literal string token with a symbolic name as an alias, using the %token declaration. If you don't do that, the lexical analyzer has to retrieve the token code for the literal string token.
-
-<h1> Rule&State </h1><pre>
-for grammar as following:
-
-nontermxx: TERM01 TERM02 |
-    TERM01 TERM03
-
-there are 2 rules, both telling how to construct nontermxx
-
-at state X, after read TERM01, the parser shift it and go into state Y,  state Y will expect TERM01 at the top of the stack; use --verbose option of bison to view detailed states for your parser
+<h1> Token kind, value and name </h1>
+The Bison representation for a terminal symbol is also called a token kind.
+<p>
+If you refer to .tab.h file, you will notice code like<pre>
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+  enum yytokentype
+  {
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    OB = 258,                      /* OB  */
+    CB = 259,                      /* CB  */
+    IDENTIFIER = 260               /* IDENTIFIER  */
+  };
+  typedef enum yytokentype yytoken_kind_t;
+#endif
 </pre>
+<p style=color:red>
+We normally can't define YYTOKENTYPE in .l or .y, bison or flex are not expecting we to do that.
+<p>
+If you refer to .tab.c file, you will notice code like<pre>
+#include "parser.tab.h"
+/* Symbol kind.  */
+enum yysymbol_kind_t
+{
+  YYSYMBOL_YYEMPTY = -2,
+  YYSYMBOL_YYEOF = 0,                      /* "end of file"  */
+  YYSYMBOL_YYerror = 1,                    /* error  */
+  YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
+  YYSYMBOL_OB = 3,                         /* OB  */
+  YYSYMBOL_CB = 4,                         /* CB  */
+  YYSYMBOL_IDENTIFIER = 5,                 /* IDENTIFIER  */
+  YYSYMBOL_YYACCEPT = 6,                   /* $accept  */
+  YYSYMBOL_program = 7,                    /* program  */
+  YYSYMBOL_block = 8,                      /* block  */
+  YYSYMBOL_9_1 = 9,                        /* $@1  */
+  YYSYMBOL_statements = 10,                /* statements  */
+  YYSYMBOL_statement = 11                  /* statement  */
+};
+typedef enum yysymbol_kind_t yysymbol_kind_t;
+</pre>
+<p style=color:red>
+note YYerror's symbol kind is not enumed as 256, so does YYUNDEF;
+<p style=color:green>
+Each Special Tokens(refer to 4.3.2) are explained as followings:<ul>
+<li>YYEMPTY: bison don't need to know the look ahead in this case
+<li>YYEOF: bison trace "end of file" for this case(refer to enum yytokentype); in the case there are still inputs but we wanna stop parsing, .l can still return this value instead of -1(don't return YYEMPTY, it has special meaning)
+<li>YYerror: bison don't know what's the error, so .l must call yyerror() itself before bison entering recovery(in .y rule, you write `error` for YYSYMBOL_YYerror)
+<li>YYUNDEF: it's a "invalid token" to .l,
+bison call yyerror for "invalid token", then enters error recovery.
+</ul>
+
+<p style=font-style:italic>A token has kind, and value, location, etc; for here, any formal grammar only need the kinds as place holders, for example, if a rule mentions
+the terminal symbol ‘integer constant’, it means that any integer constant is grammatically
+valid in that position.
+<p>
+A terminal symbol can also be represented as a character literal, just like a C character
+constant. These kinds of tokens has their kind as the character's ascii value, and, these kinds of tokens normally don't have|need values; note yylex return 0 when no more inputs or wanna stop, so the null char can't be a Character token.
+<p>
+A third way to represent a terminal symbol is with a C string constant containing several characters, these kinds of tokens normally have constant values.
+<p>
+The basic way to declare a token kind is `%token name`; Alternatively, you can use %left, %right, %precedence, or %nonassoc instead of %token.
+<p>
+(zxxu)by default, a token's name is simly string repr of its kind, but we can specify string alias(refer to 3.7.2); With and only with %token, you can set string alias for tokens
+<p>For example for `%token ARROW "=>"`, you can use ARROW or "=>" interchangeably in .y, and ARROW in .l(or TOK_ARROW assuming you added `%define api.token.prefix {TOK_}`)
+<p>More examples:<br><textarea rows="5" cols="48">
+%token <operator> OR "||"
+// 134 is a hardcoded token code
+%token <operator> LE 134 "<="
+</textarea>
+<p>
+Note for following example:<br><textarea rows="5" cols="48">
+%token BAR "bar"
+%type <ival> foo "foo"
+%%
+foo: "baz" {}
+</textarea><br>
+"foo" and "baz" are repr of literal string tokens instead of names(their name can like _TOK_FOO, _TOK_BAZ), bison will warn of both cases as dangling-aliases
+
+<h1> augmented start rule </h1>
+bison parser's first rule is always<pre>
+ $accept: program $end
+</pre>
+It's internally named <b>augmented start production</b>
+
+<h1> (LR) item </h1>
+An item is a production with a distinguished position (the "dot") in its right-hand side(indicating how much of the production has been recognized).
+<p>
+Starting from kernel items, non-kernel items are added to a state during the <b>closure operation</b>, which complete the item set <b>of</b> a state.
+<p style=font-style:italic>
+Note we're mentioning LR(0) closure here, for LR(1) closure, a lookahead terminal (or $end) must be given.
+<p>
+Any <b>kernel item</b> must have at least one symbols recognized, except for `$accept: • start-symbol $end`, which is the unique kernel item of state 0
+
+<h1> lookahead </h1>
+When a token is read, it is not immediately shifted; first it becomes the lookahead token, which is not on the stack.
+<p>
+The lookahead token is stored in the variable yychar. Its semantic value and location, if any, are stored in the variables yylval and yylloc.
+
+
+<h1> conflicts </h1>
+reduce/reduce conflict happens when the LR(1) parsing algorithm is not able to decide which reduction to apply.
+
+<p>shift/reduce conflict happens when don't know whether to apply a reduction or read more of the input; note if a state has
+shift action(on lookahead), there won't be conflicts.
+
+<h1> reducing, by example `expr → expr + expr` </h1><ol>
+<li>Execute: $$ = $1 + $3;
+<li>Pop symbols: expr + expr
+<li>Reveal the previous state: pop same number of states
+<li>push expr; yystate = goto(previous_state, expr); go-to/jump-to yystate
+</ol>
+
+<h1> midrule action </h1>
+A midrule action may refer to the components preceding it using $n
+<p>
+zxxu: bison make an augmented production `$@n: %empty` for midrule action.
+
 
 <h1> consistent state and defaulted state </h1>
 A consistent state is a state that has only one possible parser action. If that action is
-a reduction and is encoded as a default reduction, then that consistent state is called
-a <b>defaulted state</b>.
+a reduction and is encoded as a default reduction(later will introduce), then that consistent state is called
+a <b>defaulted state</b>
 
 <h1>accepting state</h1>
-<pre>
-any bison parser exit in following way:
+accepting state is the default state with its rule as accept reduction, that is, `$default  accept`
+<p>
+any bison parser exit in following way:<pre>
 ...
-the state stack now is [0,]; the symbol stack is now [start-symbol,](the parser has just performed a reduction whose LHS is the start symbol)
-the parser goto a default state(I term it the pre-accept-state or shifting-end-state which has a shift action for $end)
-the state stack now is [0, pre-accept-state,]; the symbol stack is still [start-symbol,]; the look-ahead is $end(S_YYEOF)
-shift $end and enter the accepting-state(a default state with its rule as `$default  accept` which only has the accept action), the parser(compiled with bison --debug option) will trace like：
+the state stack now is [0,]; the symbol stack is now [start-symbol,]
+(the parser has just performed a reduction whose LHS is the start symbol, so)
+goto the pre-accept-state(zxxu's definition) which has and only has a shift action for $end
+shift $end and enter the accepting-state
+the parser(compiled with bison --debug option) will trace like：
     Stack now 0 pre-accept-state accepting-state
 the parser then finalize like:
     Stack now 0 pre-accept-state accepting-state
@@ -60,35 +151,53 @@ the parser then finalize like:
     Cleanup: popping nterm // poping the start-symbol nonterminal
 </pre>
 
-<h1> Semantic Values </h1>
-A formal grammar selects tokens only by their classifications: for example, if a rule mentions the terminal symbol integer constant, it means that any integer constant is grammatically valid in that position. The precise value of the constant is irrelevant to how to parse the
-input: if  'x+4' is <b>grammatical</b> then 'x+1' is equally grammatical.
-
-<p>Bison grammar has both a token kind and a semantic value. The token kind is a terminal symbol defined in the grammar, such as INTEGER(=0x101), IDENTIFIER(=0x102) or ';'(=';').
-
-<p>The semantic value has all the rest of the information about the meaning of the token, such as the value of an integer or a string.
-
-<h1> Semantic Actions </h1>
-For example, here is a rule that says an expression can be the sum of two subexpressions:<pre>
-    expr: expr '+' expr { $$ = $1 + $3; } ;
-</pre>
-<p>The action says how to produce the semantic value of the sum expression from the values
-of the two subexpressions
-
-<h1> Lookahead </h1>
-When a token is read, it is not immediately shifted; first it becomes the lookahead token, which is not on the stack.
+<h1> 5.8.2 default-reduction </h1>
+After parser table construction, Bison identifies the reduction with the largest lookahead
+set in each parser state. To reduce the size of the parser state, traditional Bison behavior is
+to remove that lookahead set and to assign that reduction to be the default parser action.
+Such a reduction is known as a default reduction.
 <p>
-The lookahead token is stored in the variable yychar. Its semantic value and location, if any, are stored in the variables yylval and yylloc.
+unless we %define lr.default-reduction as "consistent" or "accepting"(accepting state), else default-reduction is "most"(most aggressive)
+<p>
+Following is an example<pre>
+start:
+      stmt
+    ;
 
-<h1> Conflicts </h1>
-reduce/reduce conflict happens when the LR(1) parsing algorithm is not able to decide which of two possible reductions (applications of a grammar rule) applies
+stmt:
+      x 'A'
+    | x 'B'
+    | x 'C'
+    | y 'D'
+    ;
 
-<p>shift/reduce conflict happens when the LR(1) parsing algorithm don't know whether to apply a reduction or read more of the input and apply a reduction later in the input.
+x: %empty ;
 
-<h1> Bison parser implementation file </h1>
-Keep in mind that the Bison utility(Bison for short) and the Bison parser are two distinct programs: the
-Bison utility is a program whose output is the <b>Bison parser</b> implementation file that becomes
-part of your program.
+y: %empty ;
+</pre>
+closure of state 0 is:<pre>
+    0 $accept: • start $end
+    1 start: • stmt
+    2 stmt: • x 'A'
+    3     | • x 'B'
+    4     | • x 'C'
+    5     | • y 'D'
+    6 x: ε •
+    7 y: ε •
+</pre>
+
+we have two candidates to default-reduction, item 7 or item 6; as 6 has its lookahead set size as 3 which is larger than 1(use --report=lookahead to show this set),
+so the action table is:<pre>
+    'D'       reduce using rule 7 (y)
+    $default  reduce using rule 6 (x)
+
+    start  go to state 1
+    stmt   go to state 2
+    x      go to state 3
+    y      go to state 4
+</pre>
+
+<b style=font-style:italic>note a state can be shifted while having default-reduction(refer to state 8 of `8.2 Understanding Your Parser`)</b>
 
 <h1> <a href=1/Layout.html> The Overall Layout of a Bison Grammar </a> </h1><pre>
 %{

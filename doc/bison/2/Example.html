@@ -1,119 +1,57 @@
-<head>
-    <base href = "./">
-    <meta charset="UTF-8">
-    <!--  make sure all devices can work instead of using default settings -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/adsense.js"></script>
-    <title> Example  </title>
-</head>
-<body>
+<h1>go to the prj</h1>
+cd /home/zxxu/build/discard/workspaces/bison/prj2607081452
 
-<h1> .l file </h1><pre>
-#include &lt;stdio.h>
-#include &lt;stdlib.h>
-#include &lt;string.h>
+<h1>process bison grammar file</h1>
+bison -d --debug --graph --report=itemset <a href=Example/parser.output>--verbose</a> --warnings=all <a href=Example/parser.y>parser.y</a>
 
-//it's okay to produce .lex.c before .tab.c, but when compiling, .tab.h must exist
-#include "parser.tab.h"
-//yylval is already declared in .tab.h
-//extern YYSTYPE yylval;
+<h1>visualize .gv file</h1>
+dot -o parser.png <a href=Example/parser.png>-Tpng</a> parser.gv
 
-%}
+<h1>produce lex.yy.c</h1>
+flex <a href=Example/lexer.l>lexer.l</a>
 
-%%
+<h1>produce a.out</h1>
+gcc lex.yy.c parser.tab.c -lfl
 
-[0-9]+    { 
-    yylval.str = strdup(yytext);
-    return NUMBER;
-}
+<h1>item set of state 0</h1><pre>
+    0 $accept: • program $end,  // reduce into program goto 2; legal grammar is state-0+program+
 
-[+\-*/&lt;>] { return yytext[0]; }
-
-[ \t\r\n]   { }
-
-.         {
-    yyerror("Unexpected character");
-    //typically used in lexical analyzers to signal the end of input
-    yyterminate();
-    // in .y, we call YYERROR when ourselves found an error
-}
-
-%%
-
-int yywrap() { return 1; }
-
+    1 program: • block  // reduce into block goto 3; legal grammar can be state-0+block
+    2 block: • OB statements CB //  shift OB into 1; legal grammar can be state-0+OB+
 </pre>
 
-<h1> .y file </h1><pre>
-void yyerror(const char *s);
-// normally(expecially for bison), a zero or negative value signifies end-of-input
-int yylex();
+<h1> will always shift OB into 1, which has item set as</h1><pre>
+    3 block: OB • $@1 statements CB
 
-%}
+    2 $@1: ε • //{scope_depth++;}
+</pre>
+<h1> will always goto 4 </h1><pre>
+    3 block: OB $@1 • statements CB //{scope_depth--;}
 
-%start expr
 
-%union {
-    char *str;
-}
-
-%token &lt;str> NUMBER
-
-%nonassoc '&lt;' '>'
-%left '+' '-'
-%left '*' '/'
-
-%%
-
-expr:
-      expr '+' expr   { printf("Addition\n"); }
-    | expr '-' expr   { printf("Subtraction\n"); }
-    | expr '*' expr   { printf("Multiplication\n"); }
-    | expr '/' expr   { printf("Division\n"); }
-    | expr '&lt;' expr   { printf("Less than\n"); }
-    | expr '>' expr   { printf("Greater than\n"); }
-    | NUMBER          { printf("Number: %s\n", $1); free($1); }
-    ;
-
-%%
-
-void yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
-}
-
-int main() {
-    yyparse();
-    return 0;
-}
-
+    4 statements: ε •
+    5           | • statements statement
 </pre>
 
-<h1> research Example2 before proceeding </h1>
+<h1> always goto 6, can shift CB to 7 or IDENTIFIER to 8(else reduce into block goto 9, or reduce into statement goto 10)</h1> <pre>
+    3 block: OB $@1 statements • CB
 
-<h1> echo "1 + 2 + 3" | ./parser </h1><pre>
-Number: 1
-Number: 2
-Addition
-Number: 3
-Addition
+    5 statements: statements • statement
+
+    6 statement: • IDENTIFIER
+    7          | • block
+
+
+    3 block: • OB $@1 statements CB
 </pre>
 
-<h1> echo "5 > 3" | ./parser </h1><pre>
-Number: 5
-Number: 3
-Greater than
-</pre>
+<h1> parsers commonly start with following steps: 0+OB->1,1+$@1->4,4+ε->6 </h1>
 
-<h1> echo "6 + 4 * 2" | ./parser </h1><pre>
-Number: 6
-Number: 4
-Number: 2
-Multiplication
-Addition
-</pre>
+<h1> echo {{stmt00 stmt01}stmt1{}{stmt30}{{stmt400}}}|./a.out  </h1><ol>
+<li><a href="Example/{{stmt00 stmt01}stmt1{}{stmt30}{{stmt400}}}/1.html">append statement `{stmt00 stmt01}`</a>
+<li>append statement `stmt1`
+<li><a href="Example/{{stmt00 stmt01}stmt1{}{stmt30}{{stmt400}}}/3.html">append statement `{}`</a>
+<li>append statement `{stmt30}`
+<li><a href="Example/{{stmt00 stmt01}stmt1{}{stmt30}{{stmt400}}}/5.html">append statement `{{stmt400}}`</a>
+</ol>
 
-<h1> echo "3 > 2 > 1" | ./parser </h1><pre style=color:green>
-Number: 3
-Number: 2
-Error: syntax error
-</pre>

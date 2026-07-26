@@ -1,0 +1,57 @@
+<textarea rows="10" cols="80">
+// required by YYSTYPE
+%code requires { #include "type1.h" }
+%union { type1 field1; }
+%destructor { type1_free ($$); } <field1>
+%printer { type1_print (yyo, $$); } <field1>
+
+%code requires { #include "type2.h" }
+%union { type2 field2; }
+...
+</textarea>
+
+<textarea rows="50" cols="80">
+// even putted elsewhere, the `top` Prologue Alternatives still will occur at the top of .tab.c file
+%code top {
+  #define _GNU_SOURCE
+  #include <stdio.h>
+}
+
+%code requires {
+  // ptypes.h defined YYSTYPE's custom type named "tree"
+  #include "ptypes.h"
+}
+%union {
+  long n;
+  tree t;
+}
+
+// later our "API" trace_token refers YYLTYPE, define it as early as possible, in case bison will use its default version
+// `%code requires` code will be copied to parser header file
+%code requires {
+  #define YYLTYPE YYLTYPE
+  typedef struct YYLTYPE
+  {
+    int first_line;
+    int first_column;
+    int last_line;
+    int last_column;
+    char *filename;
+  } YYLTYPE;
+}
+
+// following code will be copied to parser header file as well,
+//  after the custom YYSTYPE, custom YYLTYPE, and the yytoken_kind_t bison-internal
+%code provides {
+  void trace_token (yytoken_kind_t token, YYLTYPE loc);
+}
+
+// in .tab.c file, bison internals are before code enclosed by `%code {`( unqualified %code directives )
+// while for the `%{` Prologue, if you write `%{` blocks as early as possible, it's before bison internals
+// so logically there are two kinds of Prologues: before-bison-internals(for example, before `%union {`) and after...
+//
+// besides above, `%{` blocks are always copied to the .tab.h file, while `%code {` blocks are not copied
+%code {
+  static void print_token (FILE *file, int token, YYSTYPE val);
+}
+</textarea>
