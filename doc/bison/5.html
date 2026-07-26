@@ -39,9 +39,7 @@ Now the precedence of UMINUS can be used in specific rules:
 <h1> .gv output </h1>
 using --graph to produce a DOT file ending with .gv(for old bison, .dot).
 <br>
-copy text of the dot file to https://www.devtoolsdaily.com/ to render it.
-<br>
-after `apy -y install graphviz`, you can change .gv file into .png file.
+after `apy -y install graphviz`, you can produce .png file from .gv file(or render it online at https://www.devtoolsdaily.com/).
 <br>
 after `apy -y install xdot`, you can IDE the DOT file locally.
 
@@ -65,20 +63,27 @@ XSLT have no difference whatsoever with those obtained by invoking bison with op
 There are several means to enable compilation of trace facilities, in decreasing order of
 preference:<ul>
 <li>-Dparse.trace
-<li>--debug to define YYDEBUG (to 1); to be compliant with yacc , use -t instead
+<li>--debug or -t
 <li>put '#define YYDEBUG 1' in the prologue of the grammar file
 </ul>
 
 <p>In C the trace facility outputs messages with macro calls of the form YYFPRINTF (stderr, format, args).
 
-<p>Once you have compiled the program with trace facilities, the way to request a trace is to store a nonzero value in the variable yydebug. You can do this by making the C code do it (in main, perhaps), or you can alter the value with a C debugger.
-
-<p>zxxu: the best practice is `bison --debug` and in your C code write:<pre>
+<p>Once you have compiled the program with trace facilities, the way to request a trace is to store a nonzero value in the variable yydebug:<pre>
+int main(void) {
+// With `%define api.prefix {my}`, parser can check MYDEBUG before set yydebug.
 #if YYDEBUG==1
-yydebug = 1;
-#else
-yydebug = 0;
+    // if tracing info compiled, req for it to be outputed
+    yydebug = 1;
 #endif
+    printf("yyparse returned %d\n", yyparse());
+}</pre>
 
-then everytime when you wanna trace, call YYFPRINTF
-</pre>
+<h1>9 Invoking Bison</h1><ul>
+<li>%define parse.error verbose
+<li>%define parse.lac full
+<li>%define api.prefix {my_yy_}<br>
+ note `%name-prefix "my_yy_"` is deprecated
+<li>-Wall enable most warnings; -Wall,counterexamples,dangling-alias,no-yacc enable all warnings except we don't care about yacc incompatibilities
+<li>--report=all, --verbose
+</ul>
