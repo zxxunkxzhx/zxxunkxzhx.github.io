@@ -1,0 +1,335 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: statements
+
+    2 statements: statement
+    3           | statements statement
+
+    4 statement: stmt_e
+    5          | stmt_l
+
+    6 stmt_e: FUNC_E '(' uint8_hex ',' uint8_hex ')'
+
+    7 uint8_hex: NUMERIC_STR
+
+    8 num: NUMERIC_STR
+
+    9 $@1: ε
+
+   10 stmt_l: FUNC_L '(' $@1 stmt_l_tail
+
+   11 stmt_l_tail: uint8_hex_seq ')'
+   12            | num ',' uint8_hex_seq ')'
+
+   13 uint8_hex_seq: uint8_hex
+   14              | uint8_hex_seq uint8_hex
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 6 10
+    ')' (41) 6 11 12
+    ',' (44) 6 12
+    error (256)
+    NUMERIC_STR <yytext_dup> (258) 7 8
+    FUNC_E (259) 6
+    FUNC_L (260) 10
+
+
+Nonterminals, with rules where they appear
+
+    $accept (9)
+        on left: 0
+    program (10)
+        on left: 1
+        on right: 0
+    statements (11)
+        on left: 2 3
+        on right: 1 3
+    statement (12)
+        on left: 4 5
+        on right: 2 3
+    stmt_e (13)
+        on left: 6
+        on right: 4
+    uint8_hex <uint8> (14)
+        on left: 7
+        on right: 6 13 14
+    num <ulong> (15)
+        on left: 8
+        on right: 12
+    stmt_l (16)
+        on left: 10
+        on right: 5
+    $@1 (17)
+        on left: 9
+        on right: 10
+    stmt_l_tail (18)
+        on left: 11 12
+        on right: 10
+    uint8_hex_seq (19)
+        on left: 13 14
+        on right: 11 12 14
+
+
+State 0
+
+    0 $accept: • program $end
+    1 program: • statements
+    2 statements: • statement
+    3           | • statements statement
+    4 statement: • stmt_e
+    5          | • stmt_l
+    6 stmt_e: • FUNC_E '(' uint8_hex ',' uint8_hex ')'
+   10 stmt_l: • FUNC_L '(' $@1 stmt_l_tail
+
+    FUNC_E  shift, and go to state 1
+    FUNC_L  shift, and go to state 2
+
+    program     go to state 3
+    statements  go to state 4
+    statement   go to state 5
+    stmt_e      go to state 6
+    stmt_l      go to state 7
+
+
+State 1
+
+    6 stmt_e: FUNC_E • '(' uint8_hex ',' uint8_hex ')'
+
+    '('  shift, and go to state 8
+
+
+State 2
+
+   10 stmt_l: FUNC_L • '(' $@1 stmt_l_tail
+
+    '('  shift, and go to state 9
+
+
+State 3
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 10
+
+
+State 4
+
+    1 program: statements •  [$end]
+    3 statements: statements • statement
+    4 statement: • stmt_e
+    5          | • stmt_l
+    6 stmt_e: • FUNC_E '(' uint8_hex ',' uint8_hex ')'
+   10 stmt_l: • FUNC_L '(' $@1 stmt_l_tail
+
+    FUNC_E  shift, and go to state 1
+    FUNC_L  shift, and go to state 2
+
+    $default  reduce using rule 1 (program)
+
+    statement  go to state 11
+    stmt_e     go to state 6
+    stmt_l     go to state 7
+
+
+State 5
+
+    2 statements: statement •
+
+    $default  reduce using rule 2 (statements)
+
+
+State 6
+
+    4 statement: stmt_e •
+
+    $default  reduce using rule 4 (statement)
+
+
+State 7
+
+    5 statement: stmt_l •
+
+    $default  reduce using rule 5 (statement)
+
+
+State 8
+
+    6 stmt_e: FUNC_E '(' • uint8_hex ',' uint8_hex ')'
+    7 uint8_hex: • NUMERIC_STR
+
+    NUMERIC_STR  shift, and go to state 12
+
+    uint8_hex  go to state 13
+
+
+State 9
+
+    9 $@1: ε •
+   10 stmt_l: FUNC_L '(' • $@1 stmt_l_tail
+
+    $default  reduce using rule 9 ($@1)
+
+    $@1  go to state 14
+
+
+State 10
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 11
+
+    3 statements: statements statement •
+
+    $default  reduce using rule 3 (statements)
+
+
+State 12
+
+    7 uint8_hex: NUMERIC_STR •
+
+    $default  reduce using rule 7 (uint8_hex)
+
+
+State 13
+
+    6 stmt_e: FUNC_E '(' uint8_hex • ',' uint8_hex ')'
+
+    ','  shift, and go to state 15
+
+
+State 14
+
+    7 uint8_hex: • NUMERIC_STR
+    8 num: • NUMERIC_STR
+   10 stmt_l: FUNC_L '(' $@1 • stmt_l_tail
+   11 stmt_l_tail: • uint8_hex_seq ')'
+   12            | • num ',' uint8_hex_seq ')'
+   13 uint8_hex_seq: • uint8_hex
+   14              | • uint8_hex_seq uint8_hex
+
+    NUMERIC_STR  shift, and go to state 16
+
+    uint8_hex      go to state 17
+    num            go to state 18
+    stmt_l_tail    go to state 19
+    uint8_hex_seq  go to state 20
+
+
+State 15
+
+    6 stmt_e: FUNC_E '(' uint8_hex ',' • uint8_hex ')'
+    7 uint8_hex: • NUMERIC_STR
+
+    NUMERIC_STR  shift, and go to state 12
+
+    uint8_hex  go to state 21
+
+
+State 16
+
+    7 uint8_hex: NUMERIC_STR •  [NUMERIC_STR, ')']
+    8 num: NUMERIC_STR •  [',']
+
+    ','       reduce using rule 8 (num)
+    $default  reduce using rule 7 (uint8_hex)
+
+
+State 17
+
+   13 uint8_hex_seq: uint8_hex •
+
+    $default  reduce using rule 13 (uint8_hex_seq)
+
+
+State 18
+
+   12 stmt_l_tail: num • ',' uint8_hex_seq ')'
+
+    ','  shift, and go to state 22
+
+
+State 19
+
+   10 stmt_l: FUNC_L '(' $@1 stmt_l_tail •
+
+    $default  reduce using rule 10 (stmt_l)
+
+
+State 20
+
+    7 uint8_hex: • NUMERIC_STR
+   11 stmt_l_tail: uint8_hex_seq • ')'
+   14 uint8_hex_seq: uint8_hex_seq • uint8_hex
+
+    NUMERIC_STR  shift, and go to state 12
+    ')'          shift, and go to state 23
+
+    uint8_hex  go to state 24
+
+
+State 21
+
+    6 stmt_e: FUNC_E '(' uint8_hex ',' uint8_hex • ')'
+
+    ')'  shift, and go to state 25
+
+
+State 22
+
+    7 uint8_hex: • NUMERIC_STR
+   12 stmt_l_tail: num ',' • uint8_hex_seq ')'
+   13 uint8_hex_seq: • uint8_hex
+   14              | • uint8_hex_seq uint8_hex
+
+    NUMERIC_STR  shift, and go to state 12
+
+    uint8_hex      go to state 17
+    uint8_hex_seq  go to state 26
+
+
+State 23
+
+   11 stmt_l_tail: uint8_hex_seq ')' •
+
+    $default  reduce using rule 11 (stmt_l_tail)
+
+
+State 24
+
+   14 uint8_hex_seq: uint8_hex_seq uint8_hex •
+
+    $default  reduce using rule 14 (uint8_hex_seq)
+
+
+State 25
+
+    6 stmt_e: FUNC_E '(' uint8_hex ',' uint8_hex ')' •
+
+    $default  reduce using rule 6 (stmt_e)
+
+
+State 26
+
+    7 uint8_hex: • NUMERIC_STR
+   12 stmt_l_tail: num ',' uint8_hex_seq • ')'
+   14 uint8_hex_seq: uint8_hex_seq • uint8_hex
+
+    NUMERIC_STR  shift, and go to state 12
+    ')'          shift, and go to state 27
+
+    uint8_hex  go to state 24
+
+
+State 27
+
+   12 stmt_l_tail: num ',' uint8_hex_seq ')' •
+
+    $default  reduce using rule 12 (stmt_l_tail)

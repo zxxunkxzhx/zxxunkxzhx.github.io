@@ -1,0 +1,80 @@
+<h1>go to the prj</h1>
+cd /home/zxxu/build/discard/workspaces/bison/Example2
+
+<h1>process bison grammar file</h1>
+bison -Dparse.error=verbose -Dparse.lac=full -d --debug <a href=Example2/parser.html>--html</a> --report=all <a href=Example2/parser.output>--verbose</a> -Wall,counterexamples,dangling-alias,no-yacc <a href=Example2/parser.y>parser.y</a>
+<br>
+//--graph for small prj
+
+<h1>if --xml, change xml into other format; if --graph, visualize .gv file</h1>
+//xsltproc /usr/share/bison/xslt/xml2xhtml.xsl data_swap_demo.xml >data_swap_demo.html
+<br>
+// dot -o trace.png -Tpng parser.gv
+
+<h1>produce lex.yy.c</h1>
+flex <a href=Example2/lexer.l>lexer.l</a>
+
+<h1>produce a.out</h1>
+gcc lex.yy.c parser.tab.c -lfl
+
+<h1>states</h1><ol>
+<li>matched-TOK_E: (indicate the program is proceeding with stmt_e and)
+<li>matched-TOK_L:
+<li>pre-accept: 
+<li>matched-program--or--matched-first-statements: will explain
+<li>matched-statement:
+<li>matched-stmt_e:
+<li>matched-stmt_l:
+<li>matching-E-args: matched open brace
+<li>matching-L-args:
+<li>accepting state:
+<li>matched-statements-statement:
+<li>uint8_hex_matched_state:
+<li>matched-stmt_e-FirstArg:
+<li>matching-stmt_l_tail: 
+<li>matching-E-second-arg:
+<li>uint8_hex_or_num_matched
+<li>...
+</ol>
+
+<h1>lookahead sets of states</h1><ul>
+<li>rules can't be reduced(as no complete items): [0..3], 8, [13..15], 18, [20..22], 26
+<li>state 4 has only one complete item(1 program → statements •), the item's lookahead set has one member, let's figure out's that member:<ol start=0>
+    <li>start from state 0's core: `$accept → • program $end`
+    <li>a program can be a statements and program is followed by $end, so $end is a lookahead
+    <li style=font-style:italic>no other paths run to state 4
+    </ol>
+<li>no lookahead set in need(as no shifts and no other reductions): [5..7], [10..12], 17, 19, [23..25], 27
+<li>state 9 has only one complete item and that item is empty; <b style=color:green>assume there are another item in this state which will shift, bison prefer shift; assume there are another item which can also reduce, that item's lookahead set shall conflict with this empty item's lookahead set(actually empty item's lookahead set contains everything), bison will resolve this conflict by checking which rule happens first</b>
+<li>state 16: has complete items `7 uint8_hex → NUMERIC_STR •` and `8 num → NUMERIC_STR •`; will discuss later
+</ul>
+
+<h1>propagate with initial state</h1><ul>
+    <li>matched-TOK_E|matched-TOK_L|pre-accept
+    <li>matched-program--or--matched-first-statements(`statements: • statements statement` is in the closure); for the program reduced into statements item, the lookahead is $end
+    <li>matched-statement, matched-stmt_e, matched-stmt_l
+    </ul>
+
+<h1>propagate with matched-TOK_E|matched-TOK_L|pre-accept</h1>
+    proceed to complete the paths
+
+<h1>propagate with state 4</h1><ul>
+    <li>matched-TOK_E|matched-TOK_L
+    <li>matched-statements-statement|matched-stmt_e|matched-stmt_l
+    </ul>
+
+<h1>propagate with matched-statements-statement|matched-stmt_e|matched-stmt_l</h1>
+    being default state(s), no lookahead set in need
+
+<h1>propagate with uint8_hex_matched_state</h1>
+    no lookahead set in need
+
+<h1>propagate with matching-L-args</h1>
+    proceed with matching-stmt_l_tail
+
+<h1>propagate with matching-stmt_l_tail</h1>
+    only discuss on NUMERIC_STR shift to uint8_hex_or_num_matched: <ul>
+        <li>stmt_l_tail → • num ',' uint8_hex_seq ')' ==> ',' is a lookahead for `8 num → NUMERIC_STR •`
+        <li>`stmt_l_tail → • uint8_hex_seq ')'` -> `uint8_hex_seq → • uint8_hex` ==> ')' is lookahead for `7 uint8_hex → NUMERIC_STR •`
+        <li>`stmt_l_tail → • uint8_hex_seq ')'` -> `uint8_hex_seq → • uint8_hex_seq  uint8_hex` -> `uint8_hex → • NUMERIC_STR` ==> NUMERIC_STR is lookahead ...
+    <ul>

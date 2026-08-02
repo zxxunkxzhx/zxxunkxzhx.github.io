@@ -159,45 +159,7 @@ Such a reduction is known as a default reduction.
 <p>
 unless we %define lr.default-reduction as "consistent" or "accepting"(accepting state), else default-reduction is "most"(most aggressive)
 <p>
-Following is an example<pre>
-start:
-      stmt
-    ;
-
-stmt:
-      x 'A'
-    | x 'B'
-    | x 'C'
-    | y 'D'
-    ;
-
-x: %empty ;
-
-y: %empty ;
-</pre>
-closure of state 0 is:<pre>
-    0 $accept: • start $end
-    1 start: • stmt
-    2 stmt: • x 'A'
-    3     | • x 'B'
-    4     | • x 'C'
-    5     | • y 'D'
-    6 x: ε •
-    7 y: ε •
-</pre>
-
-we have two candidates to default-reduction, item 7 or item 6; as 6 has its lookahead set size as 3 which is larger than 1(use --report=lookahead to show this set),
-so the action table is:<pre>
-    'D'       reduce using rule 7 (y)
-    $default  reduce using rule 6 (x)
-
-    start  go to state 1
-    stmt   go to state 2
-    x      go to state 3
-    y      go to state 4
-</pre>
-
-<b style=font-style:italic>note a state can be shifted while having default-reduction(refer to state 8 of `8.2 Understanding Your Parser`)</b>
+if there is only one reductions, default-reduction will be reduced without checking lookahead(assuming lr.default-reduction was set as most aggressive); else all reductions including the default will be checked against their lookahead set.
 
 <h1> <a href=1/Layout.html> The Overall Layout of a Bison Grammar </a> </h1><pre>
 %{
