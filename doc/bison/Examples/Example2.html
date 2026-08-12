@@ -18,19 +18,19 @@ flex <a href=Example2/lexer.l>lexer.l</a>
 gcc lex.yy.c parser.tab.c -lfl
 
 <h1>states</h1><ol>
-<li>matched-TOK_E: (indicate the program is proceeding with stmt_e and)
-<li>matched-TOK_L:
+<li>matching-FUNC_E: the program is under the hood and proceeding with stmt_e
+<li>matching-FUNC_L:
 <li>pre-accept: 
-<li>matched-program--or--matched-first-statements: will explain
-<li>matched-statement:
-<li>matched-stmt_e:
-<li>matched-stmt_l:
+<li>program-matched--or--matched-first-statements: will explain
+<li>statements-with-one-statement:
+<li>statement-as-stmt_e:
+<li>statement-as-stmt_l:
 <li>matching-E-args: matched open brace
 <li>matching-L-args:
 <li>accepting state:
-<li>matched-statements-statement:
-<li>uint8_hex_matched_state:
-<li>matched-stmt_e-FirstArg:
+<li>multi-statements-matched:
+<li>uint8_hex_matched:
+<li>matching-FUNC_E-comma:
 <li>matching-stmt_l_tail: 
 <li>matching-E-second-arg:
 <li>uint8_hex_or_num_matched
@@ -38,43 +38,41 @@ gcc lex.yy.c parser.tab.c -lfl
 </ol>
 
 <h1>lookahead sets of states</h1><ul>
-<li>rules can't be reduced(as no complete items): [0..3], 8, [13..15], 18, [20..22], 26
-<li>state 4 has only one complete item(1 program → statements •), the item's lookahead set has one member, let's figure out's that member:<ol start=0>
-    <li>start from state 0's core: `$accept → • program $end`
-    <li>a program can be a statements and program is followed by $end, so $end is a lookahead
-    <li style=font-style:italic>no other paths run to state 4
-    </ol>
+<li>rules can't be reduced(as no complete items): [0..3], [8..9], [13..15], 18, [20..22], 26
+<li>state 4 has only one complete item(1 program → statements •), the item's lookahead set has one member, we will detail how to figure out it.
 <li>no lookahead set in need(as no shifts and no other reductions): [5..7], [10..12], 17, 19, [23..25], 27
 <li>state 9 has only one complete item and that item is empty; <b style=color:green>assume there are another item in this state which will shift, bison prefer shift; assume there are another item which can also reduce, that item's lookahead set shall conflict with this empty item's lookahead set(actually empty item's lookahead set contains everything), bison will resolve this conflict by checking which rule happens first</b>
 <li>state 16: has complete items `7 uint8_hex → NUMERIC_STR •` and `8 num → NUMERIC_STR •`; will discuss later
 </ul>
 
-<h1>propagate with initial state</h1><ul>
-    <li>matched-TOK_E|matched-TOK_L|pre-accept
-    <li>matched-program--or--matched-first-statements(`statements: • statements statement` is in the closure); for the program reduced into statements item, the lookahead is $end
-    <li>matched-statement, matched-stmt_e, matched-stmt_l
-    </ul>
+<h1>closure(state 0)</h1><ul>
+<li style=font-style:italic>state 0 has only one core `0 $accept → • program $end`, this item means on program goto some state(for here, pre-accept) and that state has an item `0 $accept → program • $end` which can shift $end then goto the special default state(accepting state)
+<li>decide the FIRST set propagated to `program -> • ...` items: as $end is the first symbol following program and it's a token, so FIRST($end...) is [$end]
+<li>`1 program → • statements, [$end]` is added
+<li>decide the FIRST set propagated to `statements -> • ...` items: the FIRST set propagated to these items is FIRST(ε [$end]), which is calc as [$end]
+<li>`2 statements → • statement, [$end]` and `3 statements → • statements statement, [$end]` are added
+<li>for `2 statements → • statement, [$end]`, add `4 statement → • stmt_e, [$end]` and `5 statement → • stmt_l, [$end]`, then:<ul>
+ <li>6 stmt_e → • FUNC_E '(' uint8_hex ',' uint8_hex ')', [$end]
+ <li>10 stmt_l → • FUNC_L '(' $@1 stmt_l_tail, [$end]
+ </ul>
+<li>for `3 statements → • statements statement ...`, we already add `statements -> • ...` items, yet some items will be updated with FIRST(statement [$end]) into their lookahead sets:<ul>
+ <li>`2 statements → • statement, [FUNC_E FUNC_L $end]` which means when rule 2 matched, if lookahead is FUNC_E or FUNC_L or $end, we can reduce ...
+ <li>4 statement → • stmt_e, [FUNC_E FUNC_L $end]
+ <li>5 statement → • stmt_l, [FUNC_E FUNC_L $end]
+ <li>6 stmt_e → • FUNC_E '(' uint8_hex ',' uint8_hex ')', [FUNC_E FUNC_L $end]
+ <li>10 stmt_l → • FUNC_L '(' $@1 stmt_l_tail, [FUNC_E FUNC_L $end]
+ </ul>
+</ul>
 
-<h1>propagate with matched-TOK_E|matched-TOK_L|pre-accept</h1>
-    proceed to complete the paths
+<h1>closure(matching-E-args)</h1><ul>
+<li style=font-style:italic>has only one core  `6 stmt_e → FUNC_E '(' • uint8_hex ',' uint8_hex ')', [FUNC_E FUNC_L $end]`
+<li>on uint8_hex do closure with lookahead-set="FIRST(',' uint8_hex ')' [FUNC_E FUNC_L $end]) "
+<li>as ',' is the first symbol and is a token, so add `7 uint8_hex → • NUMERIC_STR, [',']`
+<li style=font-style:italic>on NUMERIC_STR shift into uint8_hex_matched with lookahead-set=[',']
+</ul>
 
-<h1>propagate with state 4</h1><ul>
-    <li>matched-TOK_E|matched-TOK_L
-    <li>matched-statements-statement|matched-stmt_e|matched-stmt_l
-    </ul>
-
-<h1>propagate with matched-statements-statement|matched-stmt_e|matched-stmt_l</h1>
-    being default state(s), no lookahead set in need
-
-<h1>propagate with uint8_hex_matched_state</h1>
-    no lookahead set in need
-
-<h1>propagate with matching-L-args</h1>
-    proceed with matching-stmt_l_tail
-
-<h1>propagate with matching-stmt_l_tail</h1>
-    only discuss on NUMERIC_STR shift to uint8_hex_or_num_matched: <ul>
-        <li>stmt_l_tail → • num ',' uint8_hex_seq ')' ==> ',' is a lookahead for `8 num → NUMERIC_STR •`
-        <li>`stmt_l_tail → • uint8_hex_seq ')'` -> `uint8_hex_seq → • uint8_hex` ==> ')' is lookahead for `7 uint8_hex → NUMERIC_STR •`
-        <li>`stmt_l_tail → • uint8_hex_seq ')'` -> `uint8_hex_seq → • uint8_hex_seq  uint8_hex` -> `uint8_hex → • NUMERIC_STR` ==> NUMERIC_STR is lookahead ...
-    <ul>
+<h1>closure(matching-E-second-arg)</h1><ul>
+<li>`7 uint8_hex → • NUMERIC_STR` already exists, only need merge the FIRST(')' [FUNC_E FUNC_L $end])
+<li style=font-style:italic>some document refer this merge as LALR(1) state merge, I would instead said it's lookahead set merge
+<li style=font-style:italic>on NUMERIC_STR shift into uint8_hex_matched with lookahead-set=[',' ')']
+</ul>
