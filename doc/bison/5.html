@@ -15,8 +15,7 @@ token has no precedence, then the default is to shift).
 <p>
 If the token's precedence is higher, the choice
 is to shift; If the rule's precedence is higher, the choice is to reduce. If they have equal
-precedence, the choice is made based on the associativity of the lookahead token: if %left, reduce; else if %nonassoc, error(declares that it is a syntax error to find the same operator
-twice "in a row"); else shift.<br>
+precedence, the choice is made based on the associativity of the lookahead token: if %left, reduce; else if %nonassoc, (static) error; else shift.<br>
 <p>
 The last alternative, %precedence, allows to define only precedence
 and no associativity at all; As a result, any associativity-related conflict that remains will be reported as an compile-time error(zxxu: if associativity is involved, you have to specify either %left, %right or %nonassoc)
